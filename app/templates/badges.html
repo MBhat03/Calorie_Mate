@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Mate - Achievement Badges</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { 
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            color: #f9fafb; 
+        }
+        
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.85); 
+            -webkit-backdrop-filter: blur(10px); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 1rem; 
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.6); 
+        }
+        
+        .badge-card { 
+            background: rgba(255,255,255,0.08); 
+            border-radius: 1.2rem; 
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15); 
+            padding: 2rem 1.5rem; 
+            text-align: center; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            cursor: pointer; 
+            border: 1.5px solid rgba(255,255,255,0.12); 
+            position: relative; 
+        }
+        
+        .badge-card:hover { 
+            transform: translateY(-6px) scale(1.03); 
+            box-shadow: 0 8px 32px rgba(99,102,241,0.18); 
+            border-color: #6366f1; 
+        }
+        
+        .badge-image { 
+            width: 80px; 
+            height: 80px; 
+            object-fit: cover; 
+            border-radius: 50%; 
+            border: 2px solid #6366f1; 
+            background: #1e293b; 
+        }
+        
+        .badge-title { 
+            font-size: 1.2rem; 
+            font-weight: 700; 
+            color: #fff; 
+            margin-bottom: 0.25rem; 
+        }
+        
+        .badge-description { 
+            font-size: 0.95rem; 
+            color: #cbd5e1; 
+        }
+        
+        .badge-unlock-status { 
+            position: absolute; 
+            top: 1rem; 
+            right: 1rem; 
+            font-size: 1.5rem; 
+        }
+        
+        .badge-unlock-status.locked { 
+            color: #f87171; 
+        }
+        
+        .badge-unlock-status.unlocked { 
+            color: #34d399; 
+        }
+        
+        .badges-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 2rem; 
+            margin-top: 2.5rem; 
+        }
+        
+        /* Enhanced Navigation Styles */
+        .nav-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin: 16px;
+            padding: 12px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-container:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 8s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            position: relative;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .nav-link.active:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+        
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-hamburger:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+        
+        .nav-mobile {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-mobile.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .nav-mobile .nav-link {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin: 8px 0;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .nav-hamburger {
+                display: flex;
+            }
+            
+            .nav-container {
+                margin: 12px;
+                padding: 16px 20px;
+            }
+            
+            .badges-grid { 
+                grid-template-columns: 1fr; 
+                gap: 1.2rem; 
+            }
+        }
+        
+        @media (max-width: 640px) { 
+            .badges-grid { 
+                grid-template-columns: 1fr; 
+                gap: 1.2rem; 
+            }
+        }
+        .animate-unlock {
+          animation: pulseUnlock 1s ease-out;
+        }
+        @keyframes pulseUnlock {
+          0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 rgba(34,197,94, 0.4);
+          }
+          50% {
+            transform: scale(1.07);
+            box-shadow: 0 0 15px rgba(34,197,94, 0.6);
+          }
+          100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 rgba(34,197,94, 0);
+          }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            padding: 32px 24px 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 36px;
+            height: 36px;
+            background: #ef4444;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .modal-close:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+        }
+
+        .modal-badge-image {
+            width: 96px;
+            height: 96px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #6366f1;
+            background: #1e293b;
+            margin: 0 auto 16px;
+        }
+
+        .modal-badge-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .modal-badge-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .modal-details {
+            font-size: 0.875rem;
+            color: #374151;
+            text-align: left;
+        }
+
+        .modal-details p {
+            margin: 4px 0;
+        }
+
+        .modal-details strong {
+            color: #1f2937;
+        }
+
+        .unlocked-badge {
+            border-color: #22c55e !important;
+            background: rgba(34, 197, 94, 0.1) !important;
+        }
+
+        .unlocked-badge .badge-image {
+            border-color: #22c55e !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Navigation Bar -->
+    <nav class="nav-container">
+        <div class="flex justify-between items-center">
+            <div class="nav-logo">
+                🌟 Calorie Mate
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('main.home') }}" class="nav-link">
+                    <span>🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                    <span>🍜</span>
+                    <span>Meals</span>
+                </a>
+                <a href="{{ url_for('main.badges') }}" class="nav-link active">
+                    <span>🏆</span>
+                    <span>Badges</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            <div class="nav-hamburger" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="nav-mobile" id="mobileNav">
+            <a href="{{ url_for('main.home') }}" class="nav-link">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                <span>🍜</span>
+                <span>Meals</span>
+            </a>
+            <a href="{{ url_for('main.badges') }}" class="nav-link active">
+                <span>🏆</span>
+                <span>Badges</span>
+            </a>
+            <a href="#" class="nav-link">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+    
+    <main class="pt-32 pb-8 px-4 max-w-6xl mx-auto">
+        <div class="glass-card p-8 mb-8 text-center">
+            <h1 class="text-4xl font-bold mb-2 text-white">Achievement Badges</h1>
+            <p class="text-lg text-gray-300">Unlock badges as you progress on your health journey! Click to see details.</p>
+        </div>
+        <div class="text-center mb-6">
+          <div id="badgeCount" class="text-xl font-semibold text-white mb-2">0 / 24 badges unlocked</div>
+          <div id="progressBar" class="w-full h-4 bg-gray-800 rounded-full overflow-hidden">
+            <div id="progressFill" class="h-full bg-green-400 transition-all duration-500" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="badges-grid">
+            <div class="badge-card" data-badge-id="adventure-begins" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Adventure_Begins_kdfh0g.jpg" alt="Adventure Begins!" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Adventure Begins!</h3>
+                <p class="badge-description">First time logging into Calorie Mate</p>
+            </div>
+            <div class="badge-card" data-badge-id="plus-ultra-setup" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Plus_Ultra_Setup_m4vofj.jpg" alt="Plus Ultra Setup!" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Plus Ultra Setup!</h3>
+                <p class="badge-description">Completed your hero profile</p>
+            </div>
+            <div class="badge-card" data-badge-id="first-log-no-jutsu" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/First_Log_no_Jutsu_holny6.jpg" alt="First Log no Jutsu" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">First Log no Jutsu</h3>
+                <p class="badge-description">Your first weight entry</p>
+            </div>
+            <div class="badge-card" data-badge-id="breathing-consistency" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Breathing_Consistency_qjgne2.jpg" alt="Breathing Consistency" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Breathing Consistency</h3>
+                <p class="badge-description">1-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="kaio-ken-x3" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Kaio-ken_x3_ubtinr.jpg" alt="Kaio-ken x3!" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Kaio-ken x3!</h3>
+                <p class="badge-description">3-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="bankai-dedication" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Bankai_Dedication_cfc7is.jpg" alt="Bankai Dedication" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Bankai Dedication</h3>
+                <p class="badge-description">7-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="one-punch-habit" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/One_Punch_Habit_bhc4zx.jpg" alt="One Punch Habit" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">One Punch Habit</h3>
+                <p class="badge-description">21-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="saiyan-pride" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Saiyan_Pride_hht5od.jpg" alt="Saiyan Pride" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Saiyan Pride</h3>
+                <p class="badge-description">30-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="fullmetal-discipline" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Fullmetal_Discipline_wabg4s.jpg" alt="Fullmetal Discipline" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Fullmetal Discipline</h3>
+                <p class="badge-description">60-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="humanitys-strongest" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Humanity_s_Strongest_ll897h.jpg" alt="Humanity's Strongest" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Humanity's Strongest</h3>
+                <p class="badge-description">90-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="ora-ora-consistency" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Ora_Ora_Consistency_huaast.jpg" alt="Ora Ora Consistency" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Ora Ora Consistency</h3>
+                <p class="badge-description">120-day logging streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="return-by-death" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Return_by_Death_sg1wzy.jpg" alt="Return by Death" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Return by Death</h3>
+                <p class="badge-description">Missed a log after 3+ day streak</p>
+            </div>
+            <div class="badge-card" data-badge-id="slime-evolution" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Slime_Evolution_oomv00.jpg" alt="Slime Evolution" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Slime Evolution</h3>
+                <p class="badge-description">10 total weight logs</p>
+            </div>
+            <div class="badge-card" data-badge-id="fire-dragons-roar" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Fire_Dragon_s_Roar_wl0nwy.jpg" alt="Fire Dragon's Roar" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Fire Dragon's Roar</h3>
+                <p class="badge-description">20 total weight logs</p>
+            </div>
+            <div class="badge-card" data-badge-id="overlords-record" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Overlord_s_Record_pgnugr.jpg" alt="Overlord's Record" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Overlord's Record</h3>
+                <p class="badge-description">30 total weight logs</p>
+            </div>
+            <div class="badge-card" data-badge-id="wings-of-freedom" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Wings_of_Freedom_pneyn8.jpg" alt="Wings of Freedom" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Wings of Freedom</h3>
+                <p class="badge-description">Lost 1kg - Breaking free!</p>
+            </div>
+            <div class="badge-card" data-badge-id="godspeed-progress" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Godspeed_Progress_kgogc6.jpg" alt="Godspeed Progress" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Godspeed Progress</h3>
+                <p class="badge-description">Lost 2kg - Lightning fast!</p>
+            </div>
+            <div class="badge-card" data-badge-id="copy-cat-technique" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/Copy_Cat_Technique_v6i5di.jpg" alt="Copy Cat Technique" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Copy Cat Technique</h3>
+                <p class="badge-description">Lost 3kg - Mastering the art!</p>
+            </div>
+            <div class="badge-card" data-badge-id="100percent-dedication" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293326/100_Dedication_outaum.jpg" alt="100% Dedication" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">100% Dedication</h3>
+                <p class="badge-description">Lost 4kg - Full power!</p>
+            </div>
+            <div class="badge-card" data-badge-id="symbol-of-peace" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293319/Symbol_of_Peace_gtisei.jpg" alt="Symbol of Peace" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Symbol of Peace</h3>
+                <p class="badge-description">Lost 5kg - True hero!</p>
+            </div>
+            <div class="badge-card" data-badge-id="Power-Up Start!" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752519128/Monkey_D._Luffy_Gear_2_activation_vibes_vfyesl.jpg" alt="Power-Up Start!" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Power-Up Start!</h3>
+                <p class="badge-description">Gained 1kg - Building strength!</p>
+            </div>
+            <div class="badge-card" data-badge-id="muscle-power-up" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293318/Muscle_Power_Up_p88spo.jpg" alt="Muscle Power Up" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Muscle Power Up</h3>
+                <p class="badge-description">Gained 2kg - Building strength!</p>
+            </div>
+            <div class="badge-card" data-badge-id="Hardened Resolve" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752519127/Asta_Black_Clover_anime_Sticker_vdpdke.jpg" alt="Hardened Resolve" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Hardened Resolve</h3>
+                <p class="badge-description">Gained 3kg - Building strength!</p>
+            </div>
+            <div class="badge-card" data-badge-id="Berserker Mode" onclick="openBadgeModal(this)">
+                <div class="badge-unlock-status locked">🔒</div>
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752519128/Chibi_Guts_Sticker_ddhm2c.jpg" alt="Berserker Mode" class="badge-image mx-auto mb-4">
+                <h3 class="badge-title">Berserker Mode</h3>
+                <p class="badge-description">Gained 5kg - Building strength!</p>
+            </div>
+        </div>
+    </main>
+    <!-- Badge Modal -->
+<!-- Badge Modal -->
+<div id="badgeModal" class="modal-overlay">
+    <div class="modal-container">
+        <button class="modal-close" onclick="closeBadgeModal()">×</button>
+        <img class="modal-badge-image" src="" alt="Badge Image">
+        <h2 class="modal-badge-title">Badge Title</h2>
+        <p class="modal-badge-description">Description</p>
+        <div class="modal-details">
+            <p><strong>Anime:</strong> <span id="modalBadgeAnime"></span></p>
+            <p><strong>Character:</strong> <span id="modalBadgeCharacter"></span></p>
+            <p><strong>Status:</strong> <span id="modalBadgeStatus"></span></p>
+            <p><strong>Date:</strong> <span id="modalBadgeDate"></span></p>
+        </div>
+    </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="glass-card p-8 text-center">
+    <div class="loading mb-4"></div>
+    <p class="text-white">Processing...</p>
+    </div>
+    </div>
+    
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="fixed top-20 right-4 z-50"></div>
+    
+    <script>
+    function toggleMobileNav() {
+    const mobileNav = document.getElementById('mobileNav');
+    mobileNav.classList.toggle('active');
+    }
+    
+    
+    
+    // Close mobile nav when clicking outside
+    document.addEventListener('click', function(event) {
+    const mobileNav = document.getElementById('mobileNav');
+    const hamburger = document.querySelector('.nav-hamburger');
+    
+    if (!mobileNav.contains(event.target) && !hamburger.contains(event.target)) {
+    mobileNav.classList.remove('active');
+    }
+    });
+    </script>
+    <script type="module" src="{{ url_for('static', filename='badges.js') }}"></script>
+    
+    <footer class="w-full bg-transparent mt-12">
+      <div class="glass-card max-w-4xl mx-auto mb-4 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-gray-200 text-sm shadow-lg rounded-2xl">
+        <div class="mb-2 sm:mb-0">
+          © 2024 Calorie Mate. All rights reserved.
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="https://github.com/yourusername/calorie-mate" target="_blank" rel="noopener" class="hover:underline flex items-center gap-1">
+            <i class="fab fa-github"></i> GitHub
+          </a>
+          <span class="hidden sm:inline">|</span>
+          <span>Made with <span class="text-pink-400">♥</span> for your health journey!</span>
+        </div>
+      </div>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Calorie Mate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: #f9fafb;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.6);
+        }
+        .nav-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin: 16px;
+            padding: 12px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 8s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-link {
+            position: relative;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .nav-link:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        .toggle-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            color: #fff;
+            font-weight: 600;
+            border-radius: 9999px;
+            padding: 0.5rem 1.5rem;
+            margin: 0 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: #fff;
+            border-color: #fff;
+        }
+        .form-input {
+            background: #1e293b;
+            border: 1.5px solid #475569;
+            border-radius: 0.7rem;
+            padding: 0.85rem 1.2rem;
+            color: #e0e7ff;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 8px rgb(99 102 241 / 0.6);
+            background: #273549;
+            outline: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            padding: 0.85rem 1.5rem;
+            border-radius: 0.7rem;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgb(99 102 241 / 0.6);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            box-shadow: 0 6px 18px rgb(79 70 229 / 0.75);
+            transform: translateY(-2px);
+        }
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            border-radius: 0.7rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .loading-spinner {
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            width: 22px;
+            height: 22px;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @media (max-width: 640px) {
+            .glass-card { padding: 1.5rem; }
+            .nav-container { margin: 8px; padding: 10px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Remove Navigation Bar from login page -->
+    <div class="flex items-center justify-center min-h-screen pt-24 pb-8">
+        <div class="glass-card w-full max-w-md mx-auto p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <span class="inline-block bg-white/20 backdrop-blur-sm rounded-full p-4 mb-4"><span class="text-4xl">🍱</span></span>
+                <h2 class="text-3xl font-bold mb-2 text-white">Welcome to Calorie Mate</h2>
+                <p class="text-gray-300 mb-2">Sign in or create your account to begin your health journey</p>
+            </div>
+            <div class="flex justify-center mb-6">
+                <button id="loginTab" class="toggle-btn active" onclick="showTab('login')">Login</button>
+                <button id="registerTab" class="toggle-btn" onclick="showTab('register')">Register</button>
+            </div>
+            <div id="error-message" class="error-message hidden"></div>
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-6" autocomplete="on">
+                <div>
+                    <label for="login-email" class="block text-sm font-semibold text-gray-200 mb-1">Email</label>
+                    <input type="email" id="login-email" name="email" class="form-input" placeholder="you@email.com" required autocomplete="email">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-sm font-semibold text-gray-200 mb-1">Password</label>
+                    <input type="password" id="login-password" name="password" class="form-input" placeholder="Your password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary w-full" id="loginBtn">
+                    <span>Login</span>
+                    <span id="loginSpinner" class="loading-spinner hidden ml-2"></span>
+                </button>
+            </form>
+            <!-- Register Form -->
+            <form id="registerForm" class="space-y-6 hidden" autocomplete="on">
+                <div>
+                    <label for="register-email" class="block text-sm font-semibold text-gray-200 mb-1">Email</label>
+                    <input type="email" id="register-email" name="email" class="form-input" placeholder="you@email.com" required autocomplete="email">
+                </div>
+                <div>
+                    <label for="register-password" class="block text-sm font-semibold text-gray-200 mb-1">Password</label>
+                    <input type="password" id="register-password" name="password" class="form-input" placeholder="Create a password" required autocomplete="new-password">
+                </div>
+                <div>
+                    <label for="register-confirm" class="block text-sm font-semibold text-gray-200 mb-1">Confirm Password</label>
+                    <input type="password" id="register-confirm" name="confirm" class="form-input" placeholder="Confirm your password" required autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-primary w-full" id="registerBtn">
+                    <span>Register</span>
+                    <span id="registerSpinner" class="loading-spinner hidden ml-2"></span>
+                </button>
+            </form>
+        </div>
+    </div>
+    <script type="module">
+        // --- Firebase Modular SDK Imports ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCofMBIvGlQRaKsPc9k7MkwjhBkdzoHo84",
+            authDomain: "calorie-mate-4503.firebaseapp.com",
+            projectId: "calorie-mate-4503",
+            appId: "1:788288090415:web:9db8031566a7f40aaab1da"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        function showTab(tab) {
+            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+            document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('error-message').classList.add('hidden');
+        }
+        window.showTab = showTab;
+
+        document.getElementById('loginForm').onsubmit = async function(e) {
+            e.preventDefault();
+            document.getElementById('loginSpinner').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = "/dashboard";
+            } catch (err) {
+                document.getElementById('error-message').textContent = err.message;
+                document.getElementById('error-message').classList.remove('hidden');
+            } finally {
+                document.getElementById('loginSpinner').classList.add('hidden');
+            }
+        };
+
+        document.getElementById('registerForm').onsubmit = async function(e) {
+            e.preventDefault();
+            document.getElementById('registerSpinner').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            if (password !== confirm) {
+                document.getElementById('error-message').textContent = "Passwords do not match.";
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('registerSpinner').classList.add('hidden');
+                return;
+            }
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                window.location.href = "/?screen=onboarding";
+            } catch (err) {
+                console.error('Registration error:', err);
+                let msg = err.message;
+                if (msg.includes('email-already-in-use')) msg = 'Email is already registered.';
+                if (msg.includes('weak-password')) msg = 'Password should be at least 6 characters.';
+                if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
+                document.getElementById('error-message').textContent = msg;
+                document.getElementById('error-message').classList.remove('hidden');
+            } finally {
+                document.getElementById('registerSpinner').classList.add('hidden');
+            }
+        };
+    </script>
+</body>
+</html>

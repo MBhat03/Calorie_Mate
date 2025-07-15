@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Mate - AI-Assisted Health Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: #f9fafb;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.85);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.6);
+        }
+        
+        .form-input {
+            background: #1e293b;
+            border: 1.5px solid #475569;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: #e0e7ff;
+            font-weight: 500;
+            font-size: 1rem;
+            transition: all 0.25s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 8px rgb(99 102 241 / 0.6);
+            background: #273549;
+            outline: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.7rem;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgb(99 102 241 / 0.6);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            box-shadow: 0 6px 18px rgb(79 70 229 / 0.75);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: rgba(99, 102, 241, 0.2);
+            color: #e0e7ff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.7rem;
+            font-weight: 600;
+            border: 1px solid #6366f1;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: #8b5cf6;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform-origin: 50% 50%;
+        }
+
+        /* Enhanced Navigation Styles */
+        .nav-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin: 16px;
+            padding: 12px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-container:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 8s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-link {
+            position: relative;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .nav-link.active:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+        
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-hamburger:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+        
+        .nav-mobile {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-mobile.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .nav-mobile .nav-link {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin: 8px 0;
+        }
+        
+        /* Main content container */
+        .main-content {
+            padding-top: 120px;
+            padding-bottom: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            min-height: 100vh;
+        }
+        
+        /* Grid fixes */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        
+        /* Button container fixes */
+        .button-container {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .button-container .btn-primary,
+        .button-container .btn-secondary {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .chart-container canvas {
+            max-width: 100%;
+            height: 100% !important;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .nav-hamburger {
+                display: flex;
+            }
+            
+            .nav-container {
+                margin: 12px;
+                padding: 16px 20px;
+            }
+            
+            .main-content {
+                padding-top: 100px;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            
+            .grid-cols-2 {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+            
+            .grid-cols-3 {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+            
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
+            .button-container .btn-primary,
+            .button-container .btn-secondary {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .grid-cols-4 {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+        }
+        
+        /* Form styling improvements */
+        .form-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Weight history styling */
+        .weight-entry {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .weight-entry:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Message styling */
+        .message {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid;
+        }
+        
+        .message.success {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+        }
+        
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+        
+        /* Loading overlay improvements */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-content {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        /* Utility classes */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        .flex { display: flex; }
+        .flex-1 { flex: 1; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .items-center { align-items: center; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-8 { margin-top: 2rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .w-full { width: 100%; }
+        .max-w-2xl { max-width: 42rem; }
+        .max-w-4xl { max-width: 56rem; }
+        .max-w-6xl { max-width: 72rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .hidden { display: none; }
+        .block { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Navigation Bar -->
+    <nav class="nav-container">
+        <div class="flex justify-between items-center">
+            <div class="nav-logo">
+                🌟 Calorie Mate
+            </div>
+            
+            <div class="nav-links">
+                <a href="{{ url_for('main.home') }}" class="nav-link" onclick="showScreen('onboarding')">
+                    <span>🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link" onclick="showScreen('dashboard')">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                    <span>🍜</span>
+                    <span>Meals</span>
+                </a>
+                <a href="{{ url_for('main.badges') }}" class="nav-link">
+                    <span>🏆</span>
+                    <span>Badges</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="nav-hamburger" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="nav-mobile" id="mobileNav">
+            <a href="{{ url_for('main.home') }}" class="nav-link" onclick="showScreen('onboarding')">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="nav-link" onclick="showScreen('dashboard')">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                <span>🍜</span>
+                <span>Meals</span>
+            </a>
+            <a href="{{ url_for('main.badges') }}" class="nav-link">
+                <span>🏆</span>
+                <span>Badges</span>
+            </a>
+            <a href="#" class="nav-link">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home/Hero Screen -->
+        <div id="home" class="screen max-w-4xl mx-auto">
+            <!-- Place your home/hero section content here (the one currently always visible) -->
+            <!-- Example: -->
+            <section class="glass-card p-8 text-center">
+                <h1 class="text-5xl font-bold mb-4">Your <span class="text-pink-400">Ultimate</span> Health Journey</h1>
+                <p class="text-lg text-gray-300 mb-6">Transform your fitness journey with personalized meal suggestions, weight tracking, and unlock epic themed badges as you level up your health!</p>
+                <a href="#" class="btn-primary">🚀 Start Dashboard</a>
+                <span class="ml-4 text-sm text-gray-400">Start your adventure today! ✨</span>
+            </section>
+        </div>
+        <!-- Onboarding Screen -->
+        <div id="onboarding" class="screen max-w-4xl mx-auto">
+            <div class="glass-card p-8">
+                <div class="text-center mb-8">
+                    <i class="fas fa-user-plus text-4xl text-blue-400 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-white mb-2">Welcome to Calorie Mate</h2>
+                    <p class="text-gray-300">Let's get started with your health journey</p>
+                </div>
+                
+                <div class="form-container">
+                    <form id="onboardingForm" class="space-y-6">
+                        <div class="grid grid-cols-1 grid-cols-2 gap-6">
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input type="text" id="name" name="name" class="form-input" placeholder="Enter your name" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Age</label>
+                                <input type="number" id="age" name="age" class="form-input" placeholder="25" min="1" max="120" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select id="gender" name="gender" class="form-input" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Height (cm)</label>
+                                <input type="number" id="height" name="height" class="form-input" placeholder="165" min="50" max="300" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weight (kg)</label>
+                                <input type="number" id="weight" name="weight" class="form-input" placeholder="60" min="10" max="500" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="activity" class="form-label">Activity Level</label>
+                                <select id="activity" name="activity" class="form-input" required>
+                                    <option value="">Select Activity Level</option>
+                                    <option value="Sedentary">Sedentary</option>
+                                    <option value="Light">Light</option>
+                                    <option value="Moderate">Moderate</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Very Active">Very Active</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="goal" class="form-label">Goal</label>
+                                <select id="goal" name="goal" class="form-input" required>
+                                    <option value="">Select Goal</option>
+                                    <option value="Maintain Weight">Maintain Weight</option>
+                                    <option value="Lose Weight">Lose Weight</option>
+                                    <option value="Gain Weight">Gain Weight</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="region" class="form-label">Region</label>
+                                <select id="region" name="region" class="form-input" required>
+                                    <option value="">Select Region</option>
+                                    <option value="North">North</option>
+                                    <option value="South">South</option>
+                                    <option value="East">East</option>
+                                    <option value="West">West</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="button-container">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-calculator mr-2"></i>Calculate Health Metrics
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results" class="screen max-w-6xl mx-auto">
+            <div class="glass-card p-8">
+                <div class="text-center mb-8">
+                    <i class="fas fa-chart-pie text-4xl text-green-400 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-white mb-2">Your Health Metrics</h2>
+                    <p class="text-gray-300">Here's your personalized health analysis</p>
+                </div>
+                
+                <div class="grid grid-cols-1 grid-cols-2 grid-cols-4 gap-6 mb-8">
+                    <div class="metric-card">
+                        <div class="text-3xl font-bold text-blue-400 mb-2" id="bmiValue">--</div>
+                        <div class="text-sm text-gray-300">BMI</div>
+                        <div class="text-xs text-gray-400 mt-1" id="bmiStatus">--</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-3xl font-bold text-green-400 mb-2" id="bmrValue">--</div>
+                        <div class="text-sm text-gray-300">BMR (calories/day)</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-3xl font-bold text-purple-400 mb-2" id="calorieTarget">--</div>
+                        <div class="text-sm text-gray-300">Daily Calorie Goal</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-3xl font-bold text-orange-400 mb-2" id="userAge">--</div>
+                        <div class="text-sm text-gray-300">Age</div>
+                    </div>
+                </div>
+                
+                <div class="button-container">
+                    <button onclick="saveUser()" class="btn-primary">
+                        <i class="fas fa-save mr-2"></i>Save Profile
+                    </button>
+                    <button onclick="showScreen('weight-tracker')" class="btn-secondary">
+                        <i class="fas fa-weight mr-2"></i>Track Weight
+                    </button>
+                    <button onclick="showScreen('dashboard')" class="btn-secondary">
+                        <i class="fas fa-chart-line mr-2"></i>View Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weight Tracker Screen -->
+        <div id="weight-tracker" class="screen max-w-2xl mx-auto">
+            <div class="glass-card p-8">
+                <div class="text-center mb-8">
+                    <i class="fas fa-weight text-4xl text-orange-400 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-white mb-2">Weight Tracker</h2>
+                    <p class="text-gray-300">Log your daily weight to track progress</p>
+                </div>
+                
+                <form id="weightForm" class="space-y-6">
+                    <div class="form-group">
+                        <label class="form-label">Current Weight (kg)</label>
+                        <input type="number" id="currentWeight" name="currentWeight" class="form-input" placeholder="60.5" step="0.1" min="10" max="500" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" id="weightDate" name="weightDate" class="form-input" readonly>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary w-full">
+                        <i class="fas fa-plus mr-2"></i>Log Weight Entry
+                    </button>
+                </form>
+                
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-white mb-4">Recent Weight Entries</h3>
+                    <div id="weightHistory" class="space-y-4">
+                        <!-- Weight history will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="{{ url_for('static', filename='javascript.js') }}"></script>
+</body>
+</html>

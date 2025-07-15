@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Mate - Today's Meal Suggestions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{{ url_for('static', filename='javascript.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='meals.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        .nav-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin: 16px;
+            padding: 12px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        .nav-container:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 8s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .nav-link {
+            position: relative;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        .nav-link:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        .nav-link.active {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        .nav-link.active:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .nav-hamburger:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .nav-hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+        .nav-mobile {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .nav-mobile.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .nav-mobile .nav-link {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin: 8px 0;
+            justify-content: center;
+        }
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .nav-hamburger {
+                display: flex;
+            }
+            .nav-container {
+                margin: 12px;
+                padding: 16px 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen">
+    <!-- Enhanced Navigation Bar -->
+    <nav class="nav-container">
+        <div class="flex justify-between items-center">
+            <div class="nav-logo">
+                🌟 Calorie Mate
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('main.home') }}" class="nav-link">
+                    <span>🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link active">
+                    <span>🍜</span>
+                    <span>Meals</span>
+                </a>
+                <a href="{{ url_for('main.badges') }}" class="nav-link">
+                    <span>🏆</span>
+                    <span>Badges</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            <div class="nav-hamburger" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        <div class="nav-mobile" id="mobileNav">
+            <a href="{{ url_for('main.home') }}" class="nav-link">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link active">
+                <span>🍜</span>
+                <span>Meals</span>
+            </a>
+            <a href="{{ url_for('main.badges') }}" class="nav-link">
+                <span>🏆</span>
+                <span>Badges</span>
+            </a>
+            <a href="#" class="nav-link">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+    <!-- Background Pattern -->
+    <div class="fixed inset-0 opacity-5">
+        <div class="absolute inset-0 background-pattern"></div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">
+                Today's Meal Choices
+            </h1>
+            <p class="text-xl text-gray-400 mb-8">Choose your perfect meals for the day</p>
+            <button 
+                id="refresh-meals-btn"
+                class="glass-effect px-8 py-4 rounded-xl text-white font-semibold text-lg hover:bg-white/10 transition-all duration-300 group"
+            >
+                <div class="flex items-center justify-center space-x-3">
+                    <svg class="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Refresh Meals</span>
+                </div>
+            </button>
+        </div>
+
+        <!-- User Info Section -->
+        <div id="user-info" class="glass-effect rounded-xl p-6 mb-12 text-center max-w-2xl mx-auto text-white">
+            <h2 id="user-name" class="text-2xl font-semibold mb-2">Loading user info...</h2>
+            <p id="bmi-info" class="text-gray-300 text-sm">BMI: -- | BMR: --</p>
+            <p id="calorie-info" class="text-gray-300 text-sm mt-1">Calorie Goal: -- kcal/day</p>
+        </div>
+
+        <!-- 2x2 Meal Grid -->
+        <div class="meal-grid">
+            <!-- Breakfast Section -->
+            <div class="meal-section slide-in delay-1">
+                <div class="glow-container glow-breakfast h-full">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-500/20 rounded-full mb-4">
+                            <span class="text-3xl">🌅</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-2">Breakfast</h2>
+                        <p class="text-gray-400">Choose your morning fuel</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Breakfast Option 1 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-orange-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading breakfast option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-orange-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Choice Divider -->
+                        <div class="text-center my-3">
+                            <div class="bg-gray-700 rounded-full p-2 inline-block">
+                                <span class="text-gray-300 font-bold text-xs">OR</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Breakfast Option 2 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-orange-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading breakfast option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-orange-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lunch Section -->
+            <div class="meal-section slide-in delay-2">
+                <div class="glow-container glow-lunch h-full">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-full mb-4">
+                            <span class="text-3xl">☀️</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-2">Lunch</h2>
+                        <p class="text-gray-400">Pick your midday energy</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Lunch Option 1 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-blue-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading lunch option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-blue-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Choice Divider -->
+                        <div class="text-center my-3">
+                            <div class="bg-gray-700 rounded-full p-2 inline-block">
+                                <span class="text-gray-300 font-bold text-xs">OR</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Lunch Option 2 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-blue-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading lunch option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-blue-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Snack Section -->
+            <div class="meal-section slide-in delay-3">
+                <div class="glow-container glow-snack h-full">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full mb-4">
+                            <span class="text-3xl">🥨</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-2">Snack</h2>
+                        <p class="text-gray-400">Choose your afternoon treat</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Snack Option 1 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-green-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading snack option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-green-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Choice Divider -->
+                        <div class="text-center my-3">
+                            <div class="bg-gray-700 rounded-full p-2 inline-block">
+                                <span class="text-gray-300 font-bold text-xs">OR</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Snack Option 2 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-green-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading snack option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-green-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dinner Section -->
+            <div class="meal-section slide-in delay-4">
+                <div class="glow-container glow-dinner h-full">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-500/20 rounded-full mb-4">
+                            <span class="text-3xl">🌙</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-2">Dinner</h2>
+                        <p class="text-gray-400">Select your evening meal</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Dinner Option 1 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-purple-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading dinner option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-purple-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-purple-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Choice Divider -->
+                        <div class="text-center my-3">
+                            <div class="bg-gray-700 rounded-full p-2 inline-block">
+                                <span class="text-gray-300 font-bold text-xs">OR</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Dinner Option 2 -->
+                        <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-purple-500/50 cursor-pointer">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-white mb-2">
+                                        <span class="meal-name">Loading dinner option...</span>
+                                    </h3>
+                                    <p class="text-gray-400 text-sm">
+                                        <span class="meal-quantity">Quantity loading...</span>
+                                    </p>
+                                </div>
+                                <div class="bg-purple-500 text-white px-3 py-1 rounded-full font-bold text-sm">
+                                    <span class="meal-calories">--</span> cal
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-purple-500 w-0 transition-all duration-1000 meal-progress"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-16">
+            <div class="glass-effect rounded-xl p-6 inline-block">
+                <p class="text-gray-400">Personalized nutrition powered by AI</p>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Script -->
+    <script type="module" src="{{ url_for('static', filename='meals.js') }}"></script>
+    <script>
+    function toggleMobileNav() {
+        const mobileNav = document.getElementById('mobileNav');
+        mobileNav.classList.toggle('active');
+    }
+    // Close mobile nav when clicking outside
+    document.addEventListener('click', function(event) {
+        const mobileNav = document.getElementById('mobileNav');
+        const hamburger = document.querySelector('.nav-hamburger');
+        if (!mobileNav.contains(event.target) && !hamburger.contains(event.target)) {
+            mobileNav.classList.remove('active');
+        }
+    });
+    </script>
+        
+</body>
+</html>

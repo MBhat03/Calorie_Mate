@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Mate - Your Ultimate Health Journey</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'anime-pink': '#FF6B9D',
+                        'anime-purple': '#8B5CF6',
+                        'anime-blue': '#3B82F6',
+                        'anime-yellow': '#F59E0B',
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s ease-in-out infinite',
+                        'bounce-slow': 'bounce 2s ease-in-out infinite',
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'gradient-anime': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        'gradient-hero': 'linear-gradient(135deg, #ff6b9d 0%, #8b5cf6 50%, #3b82f6 100%)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3a8a 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #ff6b9d, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, #ff6b9d 0%, #8b5cf6 50%, #3b82f6 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 8s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .floating-element {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-element:nth-child(2) {
+            animation-delay: -2s;
+        }
+        
+        .floating-element:nth-child(3) {
+            animation-delay: -4s;
+        }
+        
+        .floating-element-delay-1 {
+            animation-delay: -1s;
+        }
+        
+        .floating-element-delay-2 {
+            animation-delay: -2s;
+        }
+        
+        .floating-element-delay-3 {
+            animation-delay: -3s;
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: particleFloat 20s infinite linear;
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Enhanced Navigation Styles */
+        .nav-container {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            margin: 16px;
+            padding: 12px 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-container:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.08));
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 8s ease infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            position: relative;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .nav-link.active:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+        
+        .nav-hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .nav-hamburger:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 2px;
+        }
+        
+        .nav-mobile {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            margin-top: 8px;
+            padding: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .nav-mobile.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .nav-mobile .nav-link {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin: 8px 0;
+        }
+        
+        /* Layout fixes */
+        .main-content {
+            padding-top: 100px; /* Account for fixed nav */
+        }
+        
+        .hero-section {
+            min-height: calc(100vh - 100px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            align-items: stretch;
+        }
+        
+        .feature-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .nav-hamburger {
+                display: flex;
+            }
+            
+            .nav-container {
+                margin: 12px;
+                padding: 16px 20px;
+            }
+            
+            .main-content {
+                padding-top: 120px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white overflow-x-hidden">
+    <!-- Enhanced Navigation Bar -->
+    <nav class="nav-container">
+        <div class="flex justify-between items-center">
+            <div class="nav-logo">
+                🌟 Calorie Mate
+            </div>
+            
+            <div class="nav-links">
+                <a href="{{ url_for('main.home') }}" class="nav-link active">
+                    <span>🏠</span>
+                    <span>Home</span>
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                    <span>🍜</span>
+                    <span>Meals</span>
+                </a>
+                <a href="{{ url_for('main.badges') }}" class="nav-link">
+                    <span>🏆</span>
+                    <span>Badges</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="nav-hamburger" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="nav-mobile" id="mobileNav">
+            <a href="{{ url_for('main.home') }}" class="nav-link active">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="nav-link">
+                <span>📊</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                <span>🍜</span>
+                <span>Meals</span>
+            </a>
+            <a href="{{ url_for('main.badges') }}" class="nav-link">
+                <span>🏆</span>
+                <span>Badges</span>
+            </a>
+            <a href="#" class="nav-link">
+                <span>⚙️</span>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+    
+    <div class="floating-particles" id="particles"></div>
+
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section hero-bg overflow-hidden relative">
+            <!-- Floating Elements -->
+            <div class="floating-element top-20 left-20 text-6xl">🌟</div>
+            <div class="floating-element top-40 right-20 text-4xl">🎌</div>
+            <div class="floating-element bottom-40 left-40 text-5xl">⚡</div>
+            <div class="floating-element bottom-20 right-40 text-3xl">🔥</div>
+            
+            <div class="container mx-auto px-6 text-center relative z-10">
+                <div class="max-w-4xl mx-auto">
+                    <div class="mb-8 animate-bounce-slow">
+                        <div class="inline-block bg-white/20 backdrop-blur-sm rounded-full p-6 mb-6">
+                            <span class="text-6xl">🍱</span>
+                        </div>
+                    </div>
+                    
+                    <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                        Your <span class="gradient-text">Ultimate</span><br>
+                        Health Journey
+                    </h1>
+                    
+                    <p class="text-xl md:text-2xl mb-8 text-white/90 max-w-2xl mx-auto leading-relaxed">
+                        Transform your fitness journey with personalized meal suggestions, weight tracking, and unlock epic themed badges as you level up your health!
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                        <a href="{{ url_for('main.dashboard') }}" class="group relative inline-flex items-center px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-anime-pink to-anime-purple rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                            <span class="relative z-10">🚀 Start Dashboard</span>
+                            <div class="absolute inset-0 bg-gradient-to-r from-anime-purple to-anime-blue rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        </a>
+                        
+                        <div class="flex items-center space-x-2 text-white/80">
+                            <span class="text-sm">Start your adventure today!</span>
+                            <span class="text-lg animate-pulse">✨</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-anime-yellow">1000+</div>
+                            <div class="text-sm text-white/70">Meals</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-anime-pink">50+</div>
+                            <div class="text-sm text-white/70">Badges</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-anime-blue">∞</div>
+                            <div class="text-sm text-white/70">Motivation</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gradient Overlay -->
+            <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-gray-900 to-transparent"></div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="py-20 bg-gray-900 relative">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Epic Features</h2>
+                    <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                        Discover the power-ups that make Calorie Mate your ultimate health companion
+                    </p>
+                </div>
+                
+                <div class="features-grid max-w-6xl mx-auto">
+                    <!-- Feature 1: Meal Suggestions -->
+                    <div class="feature-card rounded-2xl p-8 text-center">
+                        <div class="feature-content">
+                            <div class="mb-6">
+                                <div class="inline-block bg-gradient-to-r from-anime-pink to-anime-purple rounded-full p-4 mb-4">
+                                    <span class="text-4xl">🍜</span>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4 text-anime-pink">Personalized Meal Suggestions</h3>
+                            <p class="text-gray-300 mb-6 leading-relaxed">
+                                Get AI-powered meal recommendations tailored to your goals, preferences, and dietary needs. From bento boxes to protein bowls, discover delicious options that fuel your journey.
+                            </p>
+                            <div class="flex justify-center space-x-2">
+                                <span class="px-3 py-1 bg-anime-pink/20 text-anime-pink rounded-full text-sm">Smart AI</span>
+                                <span class="px-3 py-1 bg-anime-pink/20 text-anime-pink rounded-full text-sm">Custom Diet</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature 2: Weight Tracking -->
+                    <div class="feature-card rounded-2xl p-8 text-center">
+                        <div class="feature-content">
+                            <div class="mb-6">
+                                <div class="inline-block bg-gradient-to-r from-anime-purple to-anime-blue rounded-full p-4 mb-4">
+                                    <span class="text-4xl">📊</span>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4 text-anime-purple">Smart Weight Tracking</h3>
+                            <p class="text-gray-300 mb-6 leading-relaxed">
+                                Monitor your progress with beautiful charts and insights. Track weight, body measurements, and celebrate every milestone on your transformation journey.
+                            </p>
+                            <div class="flex justify-center space-x-2 mb-4">
+                                <span class="px-3 py-1 bg-anime-purple/20 text-anime-purple rounded-full text-sm">Progress</span>
+                                <span class="px-3 py-1 bg-anime-purple/20 text-anime-purple rounded-full text-sm">Analytics</span>
+                            </div>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-anime-purple to-anime-blue rounded-lg hover:from-anime-blue hover:to-anime-purple transition-all duration-300 transform hover:scale-105">
+                                    <span class="mr-2">📊</span>
+                                    Start Tracking
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Feature 3: Anime Badges -->
+                    <div class="feature-card rounded-2xl p-8 text-center">
+                        <div class="feature-content">
+                            <div class="mb-6">
+                                <div class="inline-block bg-gradient-to-r from-anime-blue to-anime-yellow rounded-full p-4 mb-4">
+                                    <span class="text-4xl">🏆</span>
+                                </div>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4 text-anime-blue">Achievement Badges</h3>
+                            <p class="text-gray-300 mb-6 leading-relaxed">
+                                Unlock epic themed badges as you hit your goals! From "Ramen Master" to "Fitness Sensei," collect achievements that showcase your dedication and progress.
+                            </p>
+                            <div class="flex justify-center space-x-2 mb-4">
+                                <span class="px-3 py-1 bg-anime-blue/20 text-anime-blue rounded-full text-sm">Rewards</span>
+                                <span class="px-3 py-1 bg-anime-blue/20 text-anime-blue rounded-full text-sm">Motivation</span>
+                            </div>
+                            <div class="mt-auto">
+                                <a href="{{ url_for('main.badges') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-anime-blue to-anime-yellow rounded-lg hover:from-anime-yellow hover:to-anime-blue transition-all duration-300 transform hover:scale-105">
+                                    <span class="mr-2">🏆</span>
+                                    View Badges
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-20 bg-gradient-to-r from-anime-pink via-anime-purple to-anime-blue relative overflow-hidden">
+            <div class="container mx-auto px-6 text-center relative z-10">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">Ready to Start Your Adventure?</h2>
+                    <p class="text-xl mb-8 text-white/90">
+                        Join thousands of users who've transformed their health journey with Calorie Mate. Your ultimate fitness adventure awaits!
+                    </p>
+                    <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center px-8 py-4 text-lg font-bold text-gray-900 bg-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <span class="mr-2">🚀</span>
+                        Begin Your Journey
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Animated Background Elements -->
+            <div class="absolute top-10 left-10 text-6xl opacity-20 animate-float">⭐</div>
+            <div class="absolute top-20 right-20 text-4xl opacity-20 animate-float floating-element-delay-1">🌸</div>
+            <div class="absolute bottom-20 left-20 text-5xl opacity-20 animate-float floating-element-delay-2">💫</div>
+            <div class="absolute bottom-10 right-10 text-3xl opacity-20 animate-float floating-element-delay-3">🎯</div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black py-12">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-gradient-to-r from-anime-pink to-anime-purple rounded-lg flex items-center justify-center">
+                        <span class="text-lg">🍱</span>
+                    </div>
+                    <h3 class="text-2xl font-bold gradient-text">Calorie Mate</h3>
+                </div>
+                <p class="text-gray-400 mb-6">Your ultimate health journey starts here</p>
+                <div class="flex justify-center space-x-6 mb-6">
+                    <a href="#" class="text-gray-400 hover:text-anime-pink transition-colors">Privacy</a>
+                    <a href="#" class="text-gray-400 hover:text-anime-pink transition-colors">Terms</a>
+                    <a href="#" class="text-gray-400 hover:text-anime-pink transition-colors">Support</a>
+                </div>
+                <div class="pt-6 border-t border-gray-800">
+                    <p class="text-gray-500 text-sm">© 2025 Calorie Mate. Made with ❤️ for your health journey.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        function toggleMobileNav() {
+            const mobileNav = document.getElementById('mobileNav');
+            mobileNav.classList.toggle('active');
+        }
+        
+        // Generate floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // Initialize particles when page loads
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+</body>
+</html>

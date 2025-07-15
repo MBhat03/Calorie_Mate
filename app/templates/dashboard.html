@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Mate - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"></link>
+    <style>
+        
+        body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-height: 100vh; color: #f9fafb; }
+        .glass-card { background: rgba(15, 23, 42, 0.85); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; box-shadow: 0 20px 35px rgba(0, 0, 0, 0.6); }
+        .btn-secondary { background: rgba(99, 102, 241, 0.2); color: #e0e7ff; padding: 0.75rem 1.5rem; border-radius: 0.7rem; font-weight: 600; border: 1px solid #6366f1; cursor: pointer; transition: all 0.3s ease; }
+        .btn-secondary:hover { background: rgba(99, 102, 241, 0.3); border-color: #8b5cf6; }
+        .metric-card { background: linear-gradient(135deg, #1e293b, #334155); border-radius: 1rem; padding: 1.5rem; border: 1px solid rgba(99, 102, 241, 0.3); transition: all 0.3s ease; }
+        .metric-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3); }
+        .nav-container { background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)); -webkit-backdrop-filter: blur(25px); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; margin: 16px; padding: 12px 24px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 50; transition: all 0.3s ease; }
+        .nav-logo { font-family: 'Orbitron', monospace; font-weight: 900; font-size: 1.5rem; background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4); background-size: 400% 400%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: gradientShift 8s ease infinite; text-shadow: 0 0 30px rgba(255, 255, 255, 0.3); }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-link { position: relative; color: rgba(255, 255, 255, 0.9); text-decoration: none; font-weight: 500; padding: 10px 20px; border-radius: 12px; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); overflow: hidden; display: flex; align-items: center; gap: 8px; }
+        .nav-link.active { background: linear-gradient(135deg, #ff6b6b, #4ecdc4); color: white; box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3); border-color: rgba(255, 255, 255, 0.5); }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar  -->
+    <nav class="nav-container">
+        <div class="flex justify-between items-center">
+            <div class="nav-logo">🌟 Calorie Mate</div>
+            <div class="nav-links">
+                <a href="{{ url_for('main.home') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link active">Dashboard</a>
+                <a href="{{ url_for('main.meals') }}" class="nav-link">Meals</a>
+                <a href="{{ url_for('main.badges') }}" class="nav-link">Badges</a>
+            </div>
+        </div>
+    </nav>
+    <main class="pt-32 pb-8 px-4">
+        <!-- Dashboard Screen Only -->
+        <div id="dashboard" class="screen active max-w-6xl mx-auto">
+            <div class="glass-card p-8">
+                <div class="text-center mb-8">
+                    <i class="fas fa-tachometer-alt text-4xl text-green-400 mb-4"></i>
+                    <h2 class="text-3xl font-bold text-white mb-2">Health Dashboard</h2>
+                    <p class="text-gray-300">Track your progress and stay motivated</p>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1">
+                        <div class="glass-card p-6">
+                            <h3 class="text-xl font-bold text-white mb-4">User Profile</h3>
+                            <div id="userInfo" class="space-y-3">
+                                <div class="flex justify-between"><span class="text-gray-300">Name:</span><span class="text-white font-semibold" id="userName">--</span></div>
+                                <div class="flex justify-between"><span class="text-gray-300">Age:</span><span class="text-white font-semibold" id="userAgeDash">--</span></div>
+                                <div class="flex justify-between"><span class="text-gray-300">Gender:</span><span class="text-white font-semibold" id="userGender">--</span></div>
+                                <div class="flex justify-between"><span class="text-gray-300">Height:</span><span class="text-white font-semibold" id="userHeight">--</span></div>
+                                <div class="flex justify-between"><span class="text-gray-300">Current Weight:</span><span class="text-white font-semibold" id="userCurrentWeight">--</span></div>
+                                <div class="flex justify-between"><span class="text-gray-300">Goal:</span><span class="text-white font-semibold" id="userGoal">--</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <div class="glass-card p-6">
+                            <h3 class="text-xl font-bold text-white mb-4">Weight Progress</h3>
+                            <div class="h-64">
+                                <canvas id="weightChart" class="rounded-lg border border-white bg-white/10 p-2"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button onclick="window.location.href='/?screen=onboarding'" class="btn-secondary"><i class="fas fa-edit mr-2"></i>Update Profile</button>
+                    <button onclick="window.location.href='/?screen=weight-tracker'" class="btn-secondary"><i class="fas fa-plus mr-2"></i>Add Weight Entry</button>
+                    <button onclick="refreshDashboard()" class="btn-secondary"><i class="fas fa-sync mr-2"></i>Refresh Data</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glass-card p-8 text-center">
+            <div class="loading mb-4"></div>
+            <p class="text-white">Processing...</p>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="fixed top-20 right-4 z-50"></div>
+    <script type="module" src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html> 
