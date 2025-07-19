@@ -184,119 +184,124 @@
                 <p class="text-gray-300 mb-2">Sign in or create your account to begin your health journey</p>
             </div>
             <div class="flex justify-center mb-6">
-                <button id="loginTab" class="toggle-btn active" onclick="showTab('login')">Login</button>
-                <button id="registerTab" class="toggle-btn" onclick="showTab('register')">Register</button>
+                <button id="loginTab" class="toggle-btn active" type="button" onclick="showLogin()">Login</button>
+                <button id="registerTab" class="toggle-btn" type="button" onclick="showRegister()">Register</button>
             </div>
             <div id="error-message" class="error-message hidden"></div>
             <!-- Login Form -->
-            <form id="loginForm" class="space-y-6" autocomplete="on">
-                <div>
-                    <label for="login-email" class="block text-sm font-semibold text-gray-200 mb-1">Email</label>
-                    <input type="email" id="login-email" name="email" class="form-input" placeholder="you@email.com" required autocomplete="email">
+            <div id="login-form" class="login-form">
+                <h2 class="text-xl font-bold text-white mb-4">Login</h2>
+                <form id="loginForm" class="space-y-6">
+                    <div class="form-group">
+                        <label for="loginEmail" class="block text-sm font-semibold text-gray-200 mb-1">Email</label>
+                        <input type="email" id="loginEmail" name="email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword" class="block text-sm font-semibold text-gray-200 mb-1">Password</label>
+                        <input type="password" id="loginPassword" name="password" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-full" id="loginBtn">
+                        <span>Login</span>
+                        <span id="loginSpinner" class="loading-spinner hidden ml-2"></span>
+                    </button>
+                </form>
+                <div class="toggle-form mt-4 text-center">
+                    <p>Don't have an account? <a href="#" onclick="showRegister()" class="text-blue-400 hover:underline">Register here</a></p>
                 </div>
-                <div>
-                    <label for="login-password" class="block text-sm font-semibold text-gray-200 mb-1">Password</label>
-                    <input type="password" id="login-password" name="password" class="form-input" placeholder="Your password" required autocomplete="current-password">
-                </div>
-                <button type="submit" class="btn-primary w-full" id="loginBtn">
-                    <span>Login</span>
-                    <span id="loginSpinner" class="loading-spinner hidden ml-2"></span>
-                </button>
-            </form>
+            </div>
+
             <!-- Register Form -->
-            <form id="registerForm" class="space-y-6 hidden" autocomplete="on">
-                <div>
-                    <label for="register-email" class="block text-sm font-semibold text-gray-200 mb-1">Email</label>
-                    <input type="email" id="register-email" name="email" class="form-input" placeholder="you@email.com" required autocomplete="email">
+            <div id="register-form" class="login-form" style="display: none;">
+                <h2>Register</h2>
+                <form id="registerForm">
+                    <div>
+                        <label for="registerName" class="block text-sm font-semibold text-gray-200 mb-1">Full Name</label>
+                        <input type="text" id="registerName" name="name" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="registerEmail" class="block text-sm font-semibold text-gray-200 mb-1">Email</label>
+                        <input type="email" id="registerEmail" name="email" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="registerPassword" class="block text-sm font-semibold text-gray-200 mb-1">Password</label>
+                        <input type="password" id="registerPassword" name="password" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-semibold text-gray-200 mb-1">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn-primary w-full" id="registerBtn">
+                        <span>Register</span>
+                        <span id="registerSpinner" class="loading-spinner hidden ml-2"></span>
+                    </button>
+                </form>
+                <div class="toggle-form">
+                    <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
                 </div>
-                <div>
-                    <label for="register-password" class="block text-sm font-semibold text-gray-200 mb-1">Password</label>
-                    <input type="password" id="register-password" name="password" class="form-input" placeholder="Create a password" required autocomplete="new-password">
-                </div>
-                <div>
-                    <label for="register-confirm" class="block text-sm font-semibold text-gray-200 mb-1">Confirm Password</label>
-                    <input type="password" id="register-confirm" name="confirm" class="form-input" placeholder="Confirm your password" required autocomplete="new-password">
-                </div>
-                <button type="submit" class="btn-primary w-full" id="registerBtn">
-                    <span>Register</span>
-                    <span id="registerSpinner" class="loading-spinner hidden ml-2"></span>
-                </button>
+            </div>
+            <!-- Onboarding/Profile Form -->
+            <form id="onboardingForm" class="space-y-6" style="display:none">
+              <div>
+                <label for="name" class="block text-sm font-semibold text-gray-200 mb-1">Name</label>
+                <input type="text" id="name" name="name" class="form-input" required>
+              </div>
+              <div>
+                <label for="age" class="block text-sm font-semibold text-gray-200 mb-1">Age</label>
+                <input type="number" id="age" name="age" class="form-input" required>
+              </div>
+              <div>
+                <label for="gender" class="block text-sm font-semibold text-gray-200 mb-1">Gender</label>
+                <select id="gender" name="gender" class="form-input" required>
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label for="height" class="block text-sm font-semibold text-gray-200 mb-1">Height (cm)</label>
+                <input type="number" id="height" name="height" class="form-input" required>
+              </div>
+              <div>
+                <label for="weight" class="block text-sm font-semibold text-gray-200 mb-1">Weight (kg)</label>
+                <input type="number" id="weight" name="weight" class="form-input" required>
+              </div>
+              <div>
+                <label for="activity" class="block text-sm font-semibold text-gray-200 mb-1">Activity Level</label>
+                <select id="activity" name="activity" class="form-input" required>
+                  <option value="">Select</option>
+                  <option value="Sedentary">Sedentary</option>
+                  <option value="Light">Light</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Active">Active</option>
+                  <option value="Very Active">Very Active</option>
+                </select>
+              </div>
+              <div>
+                <label for="goal" class="block text-sm font-semibold text-gray-200 mb-1">Goal</label>
+                <select id="goal" name="goal" class="form-input" required>
+                  <option value="">Select</option>
+                  <option value="Maintain Weight">Maintain Weight</option>
+                  <option value="Lose Weight">Lose Weight</option>
+                  <option value="Gain Weight">Gain Weight</option>
+                </select>
+              </div>
+              <div>
+                <label for="region" class="block text-sm font-semibold text-gray-200 mb-1">Region</label>
+                <select id="region" name="region" class="form-input" required>
+                  <option value="">Select</option>
+                  <option value="North">North</option>
+                  <option value="South">South</option>
+                  <option value="East">East</option>
+                  <option value="West">West</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-primary w-full">Save Profile</button>
             </form>
+            <!-- Health Metrics Live Display -->
+            <div id="healthMetricsDisplay" class="bg-gray-800/80 rounded-lg p-4 mt-4 text-white text-center space-y-2" style="display:none"></div>
         </div>
     </div>
-    <script type="module">
-        // --- Firebase Modular SDK Imports ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import {
-            getAuth,
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword
-        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
-        // --- Firebase Config ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyCofMBIvGlQRaKsPc9k7MkwjhBkdzoHo84",
-            authDomain: "calorie-mate-4503.firebaseapp.com",
-            projectId: "calorie-mate-4503",
-            appId: "1:788288090415:web:9db8031566a7f40aaab1da"
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        function showTab(tab) {
-            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-            document.getElementById('registerTab').classList.toggle('active', tab === 'register');
-            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
-            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
-            document.getElementById('error-message').classList.add('hidden');
-        }
-        window.showTab = showTab;
-
-        document.getElementById('loginForm').onsubmit = async function(e) {
-            e.preventDefault();
-            document.getElementById('loginSpinner').classList.remove('hidden');
-            document.getElementById('error-message').classList.add('hidden');
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = "/dashboard";
-            } catch (err) {
-                document.getElementById('error-message').textContent = err.message;
-                document.getElementById('error-message').classList.remove('hidden');
-            } finally {
-                document.getElementById('loginSpinner').classList.add('hidden');
-            }
-        };
-
-        document.getElementById('registerForm').onsubmit = async function(e) {
-            e.preventDefault();
-            document.getElementById('registerSpinner').classList.remove('hidden');
-            document.getElementById('error-message').classList.add('hidden');
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirm = document.getElementById('register-confirm').value;
-            if (password !== confirm) {
-                document.getElementById('error-message').textContent = "Passwords do not match.";
-                document.getElementById('error-message').classList.remove('hidden');
-                document.getElementById('registerSpinner').classList.add('hidden');
-                return;
-            }
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                window.location.href = "/?screen=onboarding";
-            } catch (err) {
-                console.error('Registration error:', err);
-                let msg = err.message;
-                if (msg.includes('email-already-in-use')) msg = 'Email is already registered.';
-                if (msg.includes('weak-password')) msg = 'Password should be at least 6 characters.';
-                if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
-                document.getElementById('error-message').textContent = msg;
-                document.getElementById('error-message').classList.remove('hidden');
-            } finally {
-                document.getElementById('registerSpinner').classList.add('hidden');
-            }
-        };
-    </script>
+    <script type="module" src="/static/javascript.js"></script>
 </body>
 </html>

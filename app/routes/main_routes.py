@@ -30,3 +30,7 @@ def logout():
 @main_bp.route("/meals")
 def meals():
     return render_template("meals.html")
+
+@main_bp.route("/user_details")
+def user_details():
+    return render_template("user_details.html")

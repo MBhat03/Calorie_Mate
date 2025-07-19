@@ -4,9 +4,12 @@ from flask_cors import CORS
 from app.firebase_config import db
 
 def create_app():
-    # Set template folder path explicitly
+    # Get the absolute path to the project root
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # Set template and static folder paths explicitly
     template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-    app = Flask(__name__, template_folder=template_dir)
+    static_dir = os.path.join(base_dir, 'static')
+    app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     CORS(app)
 
     app.config['FIRESTORE_DB'] = db
@@ -18,4 +21,4 @@ def create_app():
     app.register_blueprint(weight_bp, url_prefix='/api')
     app.register_blueprint(meal_bp)
 
-    return app
+    return app   

@@ -30,74 +30,134 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ---------------------------- LOGIN PAGE ---------------------------- //
-if (document.getElementById('loginForm')) {
-  const loginForm = document.getElementById('loginForm');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
+// ---------------------------- LOGIN PAGE FOR login.html ---------------------------- //
+if (window.location.pathname.endsWith('/login') || window.location.pathname.endsWith('/login.html')) {
+  // Tab switching
+  const loginTab = document.getElementById('loginTab');
+  const registerTab = document.getElementById('registerTab');
+  const loginFormDiv = document.getElementById('login-form');
+  const registerFormDiv = document.getElementById('register-form');
+  const onboardingForm = document.getElementById('onboardingForm');
   const errorDiv = document.getElementById('error-message');
-  const loginBtn = document.getElementById('loginBtn');
-  const registerBtn = document.getElementById('registerBtn');
-  const spinner = document.getElementById('spinner');
 
-  function showError(msg, color = 'text-red-500') {
-    errorDiv.textContent = msg;
-    errorDiv.classList.remove('hidden', 'text-green-500', 'text-red-500');
-    errorDiv.classList.add(color);
-  }
-
-  function hideError() {
-    errorDiv.textContent = '';
+  function showLogin() {
+    loginFormDiv.style.display = 'block';
+    registerFormDiv.style.display = 'none';
+    onboardingForm.style.display = 'none';
+    loginTab.classList.add('active');
+    registerTab.classList.remove('active');
     errorDiv.classList.add('hidden');
+    errorDiv.textContent = '';
+  }
+  function showRegister() {
+    loginFormDiv.style.display = 'none';
+    registerFormDiv.style.display = 'block';
+    onboardingForm.style.display = 'none';
+    registerTab.classList.add('active');
+    loginTab.classList.remove('active');
+    errorDiv.classList.add('hidden');
+    errorDiv.textContent = '';
+  }
+  window.showLogin = showLogin;
+  window.showRegister = showRegister;
+
+  // Show onboarding if ?edit=true
+  if (window.location.search.includes('edit=true')) {
+    loginFormDiv.style.display = 'none';
+    registerFormDiv.style.display = 'none';
+    onboardingForm.style.display = 'block';
+    loginTab.classList.remove('active');
+    registerTab.classList.remove('active');
+    errorDiv.classList.add('hidden');
+    errorDiv.textContent = '';
   }
 
-  function setLoading(isLoading) {
-    loginBtn.disabled = isLoading;
-    registerBtn.disabled = isLoading;
-    spinner.classList.toggle('hidden', !isLoading);
-  }
-
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  loginBtn.addEventListener('click', async (e) => {
+  // Login logic
+  const loginForm = document.getElementById('loginForm');
+  loginForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-    hideError();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    if (!isValidEmail(email)) return showError('Please enter a valid email address.');
-    if (!password) return showError('Please enter your password.');
-
-    setLoading(true);
+    errorDiv.classList.add('hidden');
+    errorDiv.textContent = '';
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      window.location.href = 'index.html';
+      window.location.href = '/dashboard';
     } catch (err) {
-      showError(err.message.replace('Firebase: ', ''));
-    } finally {
-      setLoading(false);
+      let msg = err.message;
+      if (msg.includes('user-not-found')) msg = 'No user found with this email.';
+      if (msg.includes('wrong-password')) msg = 'Incorrect password.';
+      if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
+      errorDiv.textContent = msg;
+      errorDiv.classList.remove('hidden');
     }
   });
 
-  registerBtn.addEventListener('click', async (e) => {
+  // Registration logic
+  const registerForm = document.getElementById('registerForm');
+  registerForm.addEventListener('submit', async function(e) {
     e.preventDefault();
-    hideError();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    if (!isValidEmail(email)) return showError('Please enter a valid email address.');
-    if (!password || password.length < 6) return showError('Password must be at least 6 characters.');
-
-    setLoading(true);
+    errorDiv.classList.add('hidden');
+    errorDiv.textContent = '';
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    if (password !== confirmPassword) {
+      errorDiv.textContent = 'Passwords do not match';
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+    if (!name) {
+      errorDiv.textContent = 'Please enter your full name';
+      errorDiv.classList.remove('hidden');
+      return;
+    }
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      showError('Registration successful! You can now log in.', 'text-green-500');
+      // Redirect to onboarding
+      window.location.href = '/login?edit=true';
     } catch (err) {
-      showError(err.message.replace('Firebase: ', ''));
-    } finally {
-      setLoading(false);
+      let msg = err.message;
+      if (msg.includes('email-already-in-use')) msg = 'This email is already registered. Please log in instead.';
+      if (msg.includes('weak-password')) msg = 'Password should be at least 6 characters.';
+      if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
+      errorDiv.textContent = msg;
+      errorDiv.classList.remove('hidden');
+    }
+  });
+
+  // Onboarding form logic
+  onboardingForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      errorDiv.textContent = 'Not authenticated. Please log in again.';
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+    const updatedData = {
+      name: document.getElementById('name').value,
+      age: parseInt(document.getElementById('age').value),
+      gender: document.getElementById('gender').value,
+      height: parseFloat(document.getElementById('height').value),
+      weight: parseFloat(document.getElementById('weight').value),
+      activity: document.getElementById('activity').value,
+      goal: document.getElementById('goal').value,
+      region: document.getElementById('region').value,
+      updated_at: new Date().toISOString()
+    };
+    // Calculate health metrics
+    const bmi = (updatedData.weight / Math.pow(updatedData.height / 100, 2)).toFixed(1);
+    const bmr = calculateBMR(updatedData);
+    updatedData.bmi = bmi;
+    updatedData.bmr = bmr;
+    try {
+      await setDoc(doc(db, 'Users', user.uid), updatedData, { merge: true });
+      window.location.href = '/dashboard';
+    } catch (err) {
+      errorDiv.textContent = 'Failed to update profile: ' + err.message;
+      errorDiv.classList.remove('hidden');
     }
   });
 }
@@ -110,6 +170,15 @@ function getQueryParam(name) {
 
 onAuthStateChanged(auth, async user => {
   if (!user) return window.location.href = 'login.html';
+
+  // Check if this is a new user registration
+  const isNewUser = sessionStorage.getItem('isNewUserRegistration');
+  if (isNewUser) {
+    // Clear the flag and redirect to onboarding
+    sessionStorage.removeItem('isNewUserRegistration');
+    showScreen('onboarding');
+    return;
+  }
 
   const userDoc = await getDoc(doc(db, 'Users', user.uid));
   const screenParam = getQueryParam('screen');
@@ -150,19 +219,18 @@ onAuthStateChanged(auth, async user => {
       // Calculate health metrics
       const bmi = (userData.weight / Math.pow(userData.height / 100, 2)).toFixed(1);
       const bmr = calculateBMR(userData);
-      const calorieTarget = calculateCalorieTarget(bmr, userData.activity, userData.goal);
+      userData.bmi = bmi;
+      userData.bmr = bmr;
 
-      // Display results
-      document.getElementById('bmiValue').textContent = bmi;
-      document.getElementById('bmiStatus').textContent = getBMIStatus(bmi);
-      document.getElementById('bmrValue').textContent = bmr;
-      document.getElementById('calorieTarget').textContent = calorieTarget;
-      document.getElementById('userAge').textContent = userData.age;
-
-      // Store user data temporarily
-      localStorage.setItem('tempUserData', JSON.stringify(userData));
-      
-      showScreen('results');
+      // Save to Firestore
+      const user = auth.currentUser;
+      if (user) {
+        await setDoc(doc(db, 'Users', user.uid), userData, { merge: true });
+      }
+      // Optionally, store in localStorage for dashboard display
+      localStorage.setItem('userDetails', JSON.stringify(userData));
+      // Redirect to dashboard with BMI/BMR in query params
+      window.location.href = 'index.html?screen=dashboard&bmi=' + bmi + '&bmr=' + bmr;
     });
   }
 
@@ -271,8 +339,10 @@ async function loadWeightHistory(user) {
 function showScreen(id) {
   console.log('showScreen called with:', id);
   document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-    console.log('Hiding screen:', s.id);
+    if (s) {
+      s.classList.remove('active');
+      console.log('Hiding screen:', s.id);
+    }
   });
   const el = document.getElementById(id);
   if (el) {
@@ -384,3 +454,55 @@ window.toggleMobileNav = function() {
   const mobileNav = document.getElementById('mobileNav');
   mobileNav.classList.toggle('active');
 };
+
+// --- Live Health Metrics Calculation for Onboarding/Profile Form ---
+(function setupLiveHealthMetrics() {
+  const onboardingForm = document.getElementById('onboardingForm');
+  const displayDiv = document.getElementById('healthMetricsDisplay');
+  if (!onboardingForm || !displayDiv) return;
+
+  // Helper to get current form values
+  function getFormData() {
+    return {
+      name: document.getElementById('name')?.value,
+      age: parseInt(document.getElementById('age')?.value),
+      gender: document.getElementById('gender')?.value,
+      height: parseFloat(document.getElementById('height')?.value),
+      weight: parseFloat(document.getElementById('weight')?.value),
+      activity: document.getElementById('activity')?.value,
+      goal: document.getElementById('goal')?.value,
+      region: document.getElementById('region')?.value
+    };
+  }
+
+  function updateMetricsDisplay() {
+    const data = getFormData();
+    // Only show if all required fields are filled
+    if (!data.age || !data.gender || !data.height || !data.weight || !data.activity || !data.goal) {
+      displayDiv.style.display = 'none';
+      displayDiv.innerHTML = '';
+      return;
+    }
+    // Calculate metrics
+    const bmi = (data.weight / Math.pow(data.height / 100, 2)).toFixed(1);
+    const bmr = calculateBMR(data);
+    const calories = calculateCalorieTarget(bmr, data.activity, data.goal);
+    const bmiStatus = getBMIStatus(bmi);
+    displayDiv.style.display = '';
+    displayDiv.innerHTML = `
+      <div><strong>BMI:</strong> ${bmi} <span class="text-sm">(${bmiStatus})</span></div>
+      <div><strong>BMR:</strong> ${bmr} kcal/day</div>
+      <div><strong>Recommended Calories for Goal:</strong> ${calories} kcal/day</div>
+    `;
+  }
+
+  // Listen for changes on all relevant fields
+  ['age','gender','height','weight','activity','goal'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateMetricsDisplay);
+    if (el && el.tagName === 'SELECT') el.addEventListener('change', updateMetricsDisplay);
+  });
+
+  // Initial call in case fields are pre-filled
+  updateMetricsDisplay();
+})();
