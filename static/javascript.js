@@ -118,10 +118,10 @@ if (window.location.pathname.endsWith('/login') || window.location.pathname.ends
       // Redirect to onboarding
       window.location.href = '/login?edit=true';
     } catch (err) {
-      let msg = err.message;
+        let msg = err.message;
       if (msg.includes('email-already-in-use')) msg = 'This email is already registered. Please log in instead.';
-      if (msg.includes('weak-password')) msg = 'Password should be at least 6 characters.';
-      if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
+        if (msg.includes('weak-password')) msg = 'Password should be at least 6 characters.';
+        if (msg.includes('invalid-email')) msg = 'Please enter a valid email address.';
       errorDiv.textContent = msg;
       errorDiv.classList.remove('hidden');
     }
@@ -136,26 +136,26 @@ if (window.location.pathname.endsWith('/login') || window.location.pathname.ends
       errorDiv.classList.remove('hidden');
       return;
     }
-    const updatedData = {
-      name: document.getElementById('name').value,
-      age: parseInt(document.getElementById('age').value),
-      gender: document.getElementById('gender').value,
-      height: parseFloat(document.getElementById('height').value),
-      weight: parseFloat(document.getElementById('weight').value),
-      activity: document.getElementById('activity').value,
-      goal: document.getElementById('goal').value,
-      region: document.getElementById('region').value,
-      updated_at: new Date().toISOString()
-    };
+        const updatedData = {
+          name: document.getElementById('name').value,
+          age: parseInt(document.getElementById('age').value),
+          gender: document.getElementById('gender').value,
+          height: parseFloat(document.getElementById('height').value),
+          weight: parseFloat(document.getElementById('weight').value),
+          activity: document.getElementById('activity').value,
+          goal: document.getElementById('goal').value,
+          region: document.getElementById('region').value,
+          updated_at: new Date().toISOString()
+        };
     // Calculate health metrics
     const bmi = (updatedData.weight / Math.pow(updatedData.height / 100, 2)).toFixed(1);
     const bmr = calculateBMR(updatedData);
     updatedData.bmi = bmi;
     updatedData.bmr = bmr;
-    try {
+        try {
       await setDoc(doc(db, 'Users', user.uid), updatedData, { merge: true });
-      window.location.href = '/dashboard';
-    } catch (err) {
+          window.location.href = '/dashboard';
+        } catch (err) {
       errorDiv.textContent = 'Failed to update profile: ' + err.message;
       errorDiv.classList.remove('hidden');
     }
@@ -193,7 +193,9 @@ onAuthStateChanged(auth, async user => {
     localStorage.setItem('userDetails', JSON.stringify(userDoc.data()));
     console.log('DEBUG: Showing dashboard');
     showScreen('dashboard');
-    setTimeout(refreshDashboard, 200);
+    if (typeof refreshDashboard === 'function') {
+      refreshDashboard();
+    }
   } else {
     console.log('DEBUG: Showing onboarding');
     showScreen('onboarding');
@@ -230,7 +232,7 @@ onAuthStateChanged(auth, async user => {
       // Optionally, store in localStorage for dashboard display
       localStorage.setItem('userDetails', JSON.stringify(userData));
       // Redirect to dashboard with BMI/BMR in query params
-      window.location.href = 'index.html?screen=dashboard&bmi=' + bmi + '&bmr=' + bmr;
+      window.location.href = '/?screen=dashboard&bmi=' + bmi + '&bmr=' + bmr;
     });
   }
 
@@ -304,7 +306,9 @@ onAuthStateChanged(auth, async user => {
 
           showMessage('Weight saved for today!');
           await loadWeightHistory(user);
+          if (typeof refreshDashboard === 'function') {
           refreshDashboard();
+          }
         } catch (error) {
           console.error(error);
           showMessage('Failed to save weight.', 'error');
@@ -340,8 +344,8 @@ function showScreen(id) {
   console.log('showScreen called with:', id);
   document.querySelectorAll('.screen').forEach(s => {
     if (s) {
-      s.classList.remove('active');
-      console.log('Hiding screen:', s.id);
+    s.classList.remove('active');
+    console.log('Hiding screen:', s.id);
     }
   });
   const el = document.getElementById(id);
@@ -349,7 +353,10 @@ function showScreen(id) {
     el.classList.add('active');
     console.log('Showing screen:', id);
   } else {
-    console.warn('No element found for screen:', id);
+    // Only warn if on index.html (SPA), not on other pages
+    if (window.location.pathname === '/' || window.location.pathname.endsWith('index.html')) {
+      console.warn('No element found for screen:', id);
+    }
   }
 }
 function showLoading() {
@@ -428,7 +435,9 @@ async function saveUser() {
     showMessage('Profile saved successfully!');
     showScreen('dashboard');
     setTimeout(() => {
+      if (typeof refreshDashboard === 'function') {
       refreshDashboard();
+      }
     }, 500);
   } catch (error) {
     console.error('Error saving user:', error);
@@ -440,13 +449,17 @@ async function saveUser() {
 
 // Expose to HTML
 window.showScreen = showScreen;
-window.refreshDashboard = refreshDashboard;
+// window.refreshDashboard = refreshDashboard; // This line is removed as per the edit hint.
 window.saveUser = saveUser;
 
 // Global function to show dashboard and refresh after a short delay
 window.showDashboard = function () {
   showScreen('dashboard');
-  setTimeout(refreshDashboard, 300);
+  setTimeout(() => {
+    if (typeof refreshDashboard === 'function') {
+      refreshDashboard();
+    }
+  }, 300);
 };
 
 // Toggle mobile navigation
@@ -506,3 +519,72 @@ window.toggleMobileNav = function() {
   // Initial call in case fields are pre-filled
   updateMetricsDisplay();
 })();
+
+// ---------------------------- MEALS PAGE: Show BMI, BMR, Calories ---------------------------- //
+if (window.location.pathname.endsWith('/meals') || window.location.pathname.endsWith('/meals.html')) {
+  const auth = getAuth();
+  const db = getFirestore();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const userDoc = await getDoc(doc(db, 'Users', user.uid));
+    if (!userDoc.exists()) return;
+    const data = userDoc.data();
+    // Fetch latest weight log
+    let latestWeight = data.weight;
+    try {
+      const weightsRef = collection(db, `Users/${user.uid}/weights`);
+      const snapshot = await getDocs(query(weightsRef, orderBy("date", "asc")));
+      const dateWeightPairs = [];
+      snapshot.forEach(docSnap => {
+        const w = docSnap.data();
+        dateWeightPairs.push({ date: w.date, weight: w.weight });
+      });
+      if (dateWeightPairs.length > 0) {
+        dateWeightPairs.sort((a, b) => new Date(a.date) - new Date(b.date));
+        latestWeight = dateWeightPairs[dateWeightPairs.length - 1].weight;
+      }
+    } catch (e) {
+      // If error, fallback to profile weight
+    }
+    // Calculate BMI, BMR, Calories
+    const height = data.height;
+    const weight = latestWeight;
+    const age = data.age;
+    const gender = data.gender;
+    const activity = (data.activity || '').toLowerCase();
+    let goal = (data.goal || '').toLowerCase();
+    if (goal.includes('maintain')) goal = 'maintain';
+    else if (goal.includes('lose')) goal = 'lose';
+    else if (goal.includes('gain')) goal = 'gain';
+    let bmi = '--', bmr = '--', calories = '--';
+    if (height && weight && age && gender && activity && goal) {
+      bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+      if (gender.toLowerCase() === 'male') {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+      } else {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+      }
+      bmr = Math.round(bmr);
+      const activityMultipliers = {
+        'sedentary': 1.2,
+        'light': 1.375,
+        'moderate': 1.55,
+        'active': 1.725,
+        'very active': 1.9
+      };
+      const tdee = bmr * (activityMultipliers[activity] || 1.2);
+      const goalAdjustments = {
+        'maintain': 0,
+        'lose': -500,
+        'gain': 500
+      };
+      calories = Math.round(tdee + (goalAdjustments[goal] || 0));
+    }
+    // Display
+    const bmiInfo = document.getElementById('bmi-info');
+    const calorieInfo = document.getElementById('calorie-info');
+    if (bmiInfo) bmiInfo.textContent = `BMI: ${bmi} | BMR: ${bmr}`;
+    if (calorieInfo) calorieInfo.textContent = `Calorie Goal: ${calories} kcal/day`;
+  });
+}

@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calorie Mate - Today's Meal Suggestions</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="{{ url_for('static', filename='javascript.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='meals.css') }}">
+    <script type="module" src="{{ url_for('static', filename='javascript.js') }}"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
         .nav-container {
@@ -170,6 +170,17 @@
                 padding: 16px 20px;
             }
         }
+        /* Glowing effect for meal sections */
+        .glow-container {
+            --glow-color: #06b6d4;
+            box-shadow: 0 0 24px 6px rgba(6,182,212,0.10), 0 0 40px 8px var(--glow-color);
+            border-radius: 1.5rem;
+            transition: box-shadow 0.3s;
+            position: relative;
+        }
+        .glow-container:hover {
+            box-shadow: 0 0 32px 12px var(--glow-color), 0 0 60px 16px var(--glow-color);
+        }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen">
@@ -235,7 +246,7 @@
         <div class="absolute inset-0 background-pattern"></div>
     </div>
 
-    <div class="container mx-auto px-4 py-8 max-w-7xl relative z-10">
+    <div class="container mx-auto px-4 py-8 max-w-7xl relative z-10 pt-32">
         <!-- Header Section -->
         <div class="text-center mb-12">
             <h1 class="text-5xl font-bold text-white mb-4">
@@ -257,25 +268,26 @@
 
         <!-- User Info Section -->
         <div id="user-info" class="glass-effect rounded-xl p-6 mb-12 text-center max-w-2xl mx-auto text-white">
-            <h2 id="user-name" class="text-2xl font-semibold mb-2">Loading user info...</h2>
+            <h2 id="user-name" class="text-2xl font-semibold mb-2"></h2>
             <p id="bmi-info" class="text-gray-300 text-sm">BMI: -- | BMR: --</p>
             <p id="calorie-info" class="text-gray-300 text-sm mt-1">Calorie Goal: -- kcal/day</p>
         </div>
 
         <!-- 2x2 Meal Grid -->
-        <div class="meal-grid">
+        <div class="meal-grid grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Breakfast Section -->
             <div class="meal-section slide-in delay-1">
-                <div class="glow-container glow-breakfast h-full">
+                <div class="glow-container min-h-[340px]" style="--glow-color: #f59e42;">
                     <div class="text-center mb-6">
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-500/20 rounded-full mb-4">
                             <span class="text-3xl">🌅</span>
                         </div>
                         <h2 class="text-3xl font-bold text-white mb-2">Breakfast</h2>
                         <p class="text-gray-400">Choose your morning fuel</p>
+                        <button id="shuffle-breakfast" class="ml-2 px-3 py-1 rounded bg-orange-500/80 text-white text-sm font-semibold hover:bg-orange-600 transition">Shuffle</button>
                     </div>
                     
-                    <div class="space-y-4">
+                    <div id="breakfast-options" class="space-y-4">
                         <!-- Breakfast Option 1 -->
                         <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-orange-500/50 cursor-pointer">
                             <div class="flex items-start justify-between mb-4">
@@ -328,16 +340,17 @@
 
             <!-- Lunch Section -->
             <div class="meal-section slide-in delay-2">
-                <div class="glow-container glow-lunch h-full">
+                <div class="glow-container min-h-[340px]" style="--glow-color: #3b82f6;">
                     <div class="text-center mb-6">
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-500/20 rounded-full mb-4">
                             <span class="text-3xl">☀️</span>
                         </div>
                         <h2 class="text-3xl font-bold text-white mb-2">Lunch</h2>
                         <p class="text-gray-400">Pick your midday energy</p>
+                        <button id="shuffle-lunch" class="ml-2 px-3 py-1 rounded bg-blue-500/80 text-white text-sm font-semibold hover:bg-blue-600 transition">Shuffle</button>
                     </div>
                     
-                    <div class="space-y-4">
+                    <div id="lunch-options" class="space-y-4">
                         <!-- Lunch Option 1 -->
                         <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-blue-500/50 cursor-pointer">
                             <div class="flex items-start justify-between mb-4">
@@ -390,16 +403,17 @@
 
             <!-- Snack Section -->
             <div class="meal-section slide-in delay-3">
-                <div class="glow-container glow-snack h-full">
+                <div class="glow-container min-h-[340px]" style="--glow-color: #22c55e;">
                     <div class="text-center mb-6">
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-green-500/20 rounded-full mb-4">
                             <span class="text-3xl">🥨</span>
                         </div>
                         <h2 class="text-3xl font-bold text-white mb-2">Snack</h2>
                         <p class="text-gray-400">Choose your afternoon treat</p>
+                        <button id="shuffle-snacks" class="ml-2 px-3 py-1 rounded bg-green-500/80 text-white text-sm font-semibold hover:bg-green-600 transition">Shuffle</button>
                     </div>
                     
-                    <div class="space-y-4">
+                    <div id="snacks-options" class="space-y-4">
                         <!-- Snack Option 1 -->
                         <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-green-500/50 cursor-pointer">
                             <div class="flex items-start justify-between mb-4">
@@ -452,16 +466,17 @@
 
             <!-- Dinner Section -->
             <div class="meal-section slide-in delay-4">
-                <div class="glow-container glow-dinner h-full">
+                <div class="glow-container min-h-[340px]" style="--glow-color: #a78bfa;">
                     <div class="text-center mb-6">
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-500/20 rounded-full mb-4">
                             <span class="text-3xl">🌙</span>
                         </div>
                         <h2 class="text-3xl font-bold text-white mb-2">Dinner</h2>
                         <p class="text-gray-400">Select your evening meal</p>
+                        <button id="shuffle-dinner" class="ml-2 px-3 py-1 rounded bg-purple-500/80 text-white text-sm font-semibold hover:bg-purple-600 transition">Shuffle</button>
                     </div>
                     
-                    <div class="space-y-4">
+                    <div id="dinner-options" class="space-y-4">
                         <!-- Dinner Option 1 -->
                         <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 hover:border-purple-500/50 cursor-pointer">
                             <div class="flex items-start justify-between mb-4">
