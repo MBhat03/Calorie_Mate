@@ -33,6 +33,10 @@
                 <a href="{{ url_for('main.dashboard') }}" class="nav-link active">Dashboard</a>
                 <a href="{{ url_for('main.meals') }}" class="nav-link">Meals</a>
                 <a href="{{ url_for('main.badges') }}" class="nav-link">Badges</a>
+                <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </a>
             </div>
         </div>
     </nav>
@@ -50,6 +54,10 @@
         <!-- Dashboard Screen Only -->
         <div id="dashboard" class="screen active max-w-6xl mx-auto">
             <div class="glass-card p-8">
+                <div id="quote-container" class="text-center mb-8 p-4 rounded-lg" style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
+                    <p id="quote-text" class="text-xl italic text-white"></p>
+                    <p id="quote-author" class="text-right text-gray-400 mt-2"></p>
+                </div>
                 <div class="text-center mb-8">
                     <i class="fas fa-tachometer-alt text-4xl text-green-400 mb-4"></i>
                     <h2 class="text-3xl font-bold text-white mb-2">Health Dashboard</h2>
@@ -130,6 +138,7 @@
     <!-- Success/Error Messages -->
     <div id="messageContainer" class="fixed top-20 right-4 z-50"></div>
     <script type="module" src="{{ url_for('static', filename='dashboard.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='quotes.js') }}"></script>
     <script>
     // Show BMI/BMR confirmation card if present in URL
     (function() {

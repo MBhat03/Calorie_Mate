@@ -1,14 +1,35 @@
-console.log('Calorie Mate SPA JS loaded');
-// --- Firebase Modular SDK Imports ---
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+// --- Meals Tab Visibility Logic ---
+// Replace 'mealsTab' with the actual ID or class of your Meals nav item if different
+function updateMealsTabVisibility() {
+  // Use user-specific key if user is logged in
+  let show = false;
+  let userId = null;
+  try {
+    // Try to get userId from Firebase Auth if available
+    if (window.firebaseAuthUser && window.firebaseAuthUser.uid) {
+      userId = window.firebaseAuthUser.uid;
+    } else if (window.localStorage.getItem('lastUserId')) {
+      userId = window.localStorage.getItem('lastUserId');
+    }
+  } catch (e) {}
+  if (userId) {
+    show = localStorage.getItem(`mealsEnabled_${userId}`) !== 'false';
+  } else {
+    show = localStorage.getItem('mealsEnabled') !== 'false';
+  }
+  const mealsTab = document.getElementById('mealsTab');
+  if (mealsTab) {
+    mealsTab.style.display = show ? '' : 'none';
+  }
+}
+
+import { auth, db } from './js/firebase-config.js';
 import {
-  getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import {
-  getFirestore,
   doc,
   setDoc,
   getDoc,
@@ -19,16 +40,19 @@ import {
   addDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// --- Firebase Config ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCofMBIvGlQRaKsPc9k7MkwjhBkdzoHo84",
-  authDomain: "calorie-mate-4503.firebaseapp.com",
-  projectId: "calorie-mate-4503",
-  appId: "1:788288090415:web:9db8031566a7f40aaab1da"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Listen for auth state and update tab visibility accordingly
+onAuthStateChanged(auth, user => {
+  if (user) {
+    window.firebaseAuthUser = user;
+    window.localStorage.setItem('lastUserId', user.uid);
+  } else {
+    window.firebaseAuthUser = null;
+  }
+  updateMealsTabVisibility();
+});
+// Listen for changes from settings.js or other tabs
+window.addEventListener('mealsEnabledChanged', updateMealsTabVisibility);
+console.log('Calorie Mate SPA JS loaded');
 
 // ---------------------------- LOGIN PAGE FOR login.html ---------------------------- //
 if (window.location.pathname.endsWith('/login') || window.location.pathname.endsWith('/login.html')) {
@@ -169,7 +193,10 @@ function getQueryParam(name) {
 }
 
 onAuthStateChanged(auth, async user => {
-  if (!user) return window.location.href = 'login.html';
+  if (!user && window.location.pathname !== '/login') {
+    window.location.href = '/login';
+    return;
+  }
 
   // Check if this is a new user registration
   const isNewUser = sessionStorage.getItem('isNewUserRegistration');
@@ -522,8 +549,6 @@ window.toggleMobileNav = function() {
 
 // ---------------------------- MEALS PAGE: Show BMI, BMR, Calories ---------------------------- //
 if (window.location.pathname.endsWith('/meals') || window.location.pathname.endsWith('/meals.html')) {
-  const auth = getAuth();
-  const db = getFirestore();
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) return;

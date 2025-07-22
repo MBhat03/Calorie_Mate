@@ -44,10 +44,12 @@ async function refreshDashboard() {
         dateWeightPairs.push({ date: w.date, weight: w.weight });
       });
       // Find the latest weight by max date
-      let latestWeight = data.weight;
+      let latestWeight = null;
       if (dateWeightPairs.length > 0) {
-        dateWeightPairs.sort((a, b) => new Date(a.date) - new Date(b.date));
-        latestWeight = dateWeightPairs[dateWeightPairs.length - 1].weight;
+        dateWeightPairs.sort((a, b) => new Date(b.date) - new Date(a.date));
+        latestWeight = dateWeightPairs[0].weight;
+      } else {
+        latestWeight = data.weight;
       }
       document.getElementById('userCurrentWeight').textContent = latestWeight || '--';
 
@@ -55,53 +57,59 @@ async function refreshDashboard() {
       const bmiValueEl = document.getElementById('bmiValue');
       const bmrValueEl = document.getElementById('bmrValue');
       const calorieValueEl = document.getElementById('calorieValue');
-      // Use latestWeight if available, else data.weight
-      const height = data.height;
-      const weight = latestWeight || data.weight;
-      const age = data.age;
-      const gender = data.gender;
-      const activity = (data.activity || '').toLowerCase();
-      let goal = (data.goal || '').toLowerCase();
-      if (goal.includes('maintain')) goal = 'maintain';
-      else if (goal.includes('lose')) goal = 'lose';
-      else if (goal.includes('gain')) goal = 'gain';
-      // Debug: log values used for calculation
-      console.log('Health metrics input:', {height, weight, age, gender, activity, goal});
-      if (bmiValueEl && bmrValueEl && calorieValueEl && height && weight && age && gender && activity && goal) {
-        // BMI
-        const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
-        // BMR
-        let bmr;
-        if (gender.toLowerCase() === 'male') {
-          bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
-        } else {
-          bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
-        }
-        bmr = Math.round(bmr);
-        // Calorie Target
-        const activityMultipliers = {
-          'sedentary': 1.2,
-          'light': 1.375,
-          'moderate': 1.55,
-          'active': 1.725,
-          'very active': 1.9
-        };
-        const tdee = bmr * (activityMultipliers[activity] || 1.2);
-        const goalAdjustments = {
-          'maintain': 0,
-          'lose': -500,
-          'gain': 500
-        };
-        const calories = Math.round(tdee + (goalAdjustments[goal] || 0));
-        bmiValueEl.textContent = bmi;
-        bmrValueEl.textContent = bmr;
-        calorieValueEl.textContent = calories;
-      } else if (bmiValueEl && bmrValueEl && calorieValueEl) {
-        bmiValueEl.textContent = '--';
-        bmrValueEl.textContent = '--';
-        calorieValueEl.textContent = '--';
+      
+      if (bmiValueEl && bmrValueEl && calorieValueEl) {
+          // Reset values first
+          bmiValueEl.textContent = '--';
+          bmrValueEl.textContent = '--';
+          calorieValueEl.textContent = '--';
+
+          const height = data.height;
+          const weight = latestWeight || data.weight;
+          const age = data.age;
+          const gender = data.gender;
+          const activity = (data.activity || '').toLowerCase();
+          let goal = (data.goal || '').toLowerCase();
+
+          if (goal.includes('maintain')) goal = 'maintain';
+          else if (goal.includes('lose')) goal = 'lose';
+          else if (goal.includes('gain')) goal = 'gain';
+          
+          console.log('Health metrics input:', {height, weight, age, gender, activity, goal});
+
+          if (height && weight) {
+              const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+              bmiValueEl.textContent = bmi;
+
+              if (age && gender) {
+                  let bmr;
+                  if (gender.toLowerCase() === 'male') {
+                      bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+                  } else {
+                      bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+                  }
+                  bmr = Math.round(bmr);
+                  bmrValueEl.textContent = bmr;
+
+                  const activityMultipliers = {
+                      'sedentary': 1.2,
+                      'light': 1.375,
+                      'moderate': 1.55,
+                      'active': 1.725,
+                      'very active': 1.9
+                  };
+                  const tdee = bmr * (activityMultipliers[activity] || 1.2);
+                  const goalAdjustments = {
+                      'maintain': 0,
+                      'lose': -500,
+                      'gain': 500
+                  };
+                  const calories = Math.round(tdee + (goalAdjustments[goal] || 0));
+                  calorieValueEl.textContent = calories;
+              }
+          }
       }
-  
+
       const canvas = document.getElementById('weightChart');
       if (canvas) {
         const ctx = canvas.getContext('2d');
@@ -209,7 +217,7 @@ window.submitWeight = async function (event) {
         alert('Failed to add weight entry. Please try again.');
     }
 };
-  
+
 // Show the fullscreen weight entry screen and hide the dashboard
 window.showWeightEntryScreen = function () {
   const btn = document.getElementById('showWeightEntryBtn');

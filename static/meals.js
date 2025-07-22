@@ -1,25 +1,14 @@
-// static/meals.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// --- Firebase Config ---
-const firebaseConfig = {
-  apiKey: "AIzaSyCofMBIvGlQRaKsPc9k7MkwjhBkdzoHo84",
-  authDomain: "calorie-mate-4503.firebaseapp.com",
-  projectId: "calorie-mate-4503",
-  appId: "1:788288090415:web:9db8031566a7f40aaab1da"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// static/meals.js
+import { auth, db } from './js/firebase-config.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Only run this file's logic on the meals page
+if (!document.getElementById("meal-suggestions")) {
+  // Not on meals page, skip all logic
+  // (No-op: do nothing)
+} else {
 
 const MEAL_SPLIT = {
   breakfast: 0.3,
@@ -40,124 +29,37 @@ let userProfile = null;
 let mealCombos = { breakfast: [], lunch: [], snacks: [], dinner: [] };
 let currentIndices = { breakfast: 0, lunch: 0, snacks: 0, dinner: 0 };
 
-// --- Helper: Fetch meals.json ---
-async function fetchMealsData() {
-  const res = await fetch("/app/meals.json");
-  if (!res.ok) throw new Error("Failed to load meals.json");
+
+// --- Helper: Fetch meal suggestions from backend ---
+async function fetchMealSuggestions(uid) {
+  const res = await fetch(`/suggest-meals?uid=${encodeURIComponent(uid)}`);
+  if (!res.ok) throw new Error("Failed to fetch meal suggestions");
   return await res.json();
 }
 
-// --- Helper: Find meal combos for a slot ---
-function findMealCombos(meals, target, tolerance = 0.15, maxCombo = 2) {
-  // meals: array of {name, calories, unit, ...}
-  // Return up to 2 combos (arrays of {name, calories, unit, qty})
-  const min = Math.round(target * (1 - tolerance));
-  const max = Math.round(target * (1 + tolerance));
-  let combos = [];
-  // Try all 1-dish and 2-dish combos
-  for (let i = 0; i < meals.length; ++i) {
-    const m1 = meals[i];
-    // 1-dish
-    if (m1.calories >= min && m1.calories <= max) {
-      combos.push([{ ...m1, qty: 1 }]);
-    } else if (m1.calories < min) {
-      // Try multiples of the same dish
-      const qty = Math.round(target / m1.calories);
-      const total = qty * m1.calories;
-      if (qty > 1 && total >= min && total <= max) {
-        combos.push([{ ...m1, qty }]);
-      }
-    }
-    // 2-dish combos
-    for (let j = i + 1; j < meals.length; ++j) {
-      const m2 = meals[j];
-      for (let q1 = 1; q1 <= 2; ++q1) {
-        for (let q2 = 1; q2 <= 2; ++q2) {
-          const total = m1.calories * q1 + m2.calories * q2;
-          if (total >= min && total <= max) {
-            combos.push([
-              { ...m1, qty: q1 },
-              { ...m2, qty: q2 }
-            ]);
-          }
-        }
-      }
-    }
-  }
-  // If not enough combos, pick closest lower-calorie combos
-  if (combos.length < maxCombo) {
-    let best = [];
-    let bestDiff = Infinity;
-    // Try all 1- and 2-dish combos for closest under target
-    for (let i = 0; i < meals.length; ++i) {
-      const m1 = meals[i];
-      if (m1.calories < target) {
-        const diff = target - m1.calories;
-        if (diff < bestDiff) {
-          best = [[{ ...m1, qty: 1 }]];
-          bestDiff = diff;
-        }
-      }
-      for (let j = i + 1; j < meals.length; ++j) {
-        const m2 = meals[j];
-        const total = m1.calories + m2.calories;
-        if (total < target) {
-          const diff = target - total;
-          if (diff < bestDiff) {
-            best = [[{ ...m1, qty: 1 }, { ...m2, qty: 1 }]];
-            bestDiff = diff;
-          }
-        }
-      }
-    }
-    combos = combos.concat(best);
-  }
-  // Shuffle and pick up to 2 unique combos
-  combos = shuffleArray(combos).slice(0, 2);
-  return combos;
-}
-
-// --- Helper: Shuffle array ---
-function shuffleArray(arr) {
-  return arr.map(a => [Math.random(), a]).sort((a, b) => a[0] - b[0]).map(a => a[1]);
-}
-
-// --- Helper: Calculate BMR, BMI, Calorie Target ---
-function calculateBMR({ gender, weight, height, age }) {
-  if (!gender || !weight || !height || !age) return null;
-  if (gender.toLowerCase() === 'male') {
-    return Math.round(10 * weight + 6.25 * height - 5 * age + 5);
-  } else {
-    return Math.round(10 * weight + 6.25 * height - 5 * age - 161);
-  }
-}
-function calculateBMI({ weight, height }) {
-  if (!weight || !height) return null;
-  return (weight / Math.pow(height / 100, 2)).toFixed(1);
-}
-function calculateCalorieTarget(bmr, goal) {
-  if (!bmr) return null;
-  let adjustment = 0;
-  if (goal && goal.toLowerCase().includes('lose')) adjustment = -500;
-  if (goal && goal.toLowerCase().includes('gain')) adjustment = 500;
-  return Math.round(bmr + adjustment);
-}
-
 // --- Render meal options ---
-function renderMealOptions(slot, combos) {
+
+function renderMealOptions(slot, combos, currentIdx) {
   const container = document.getElementById(`${slot}-options`);
   if (!container) return;
   container.innerHTML = '';
   for (let i = 0; i < 2; ++i) {
-    const combo = combos[i];
+    const combo = combos[(currentIdx + i) % combos.length];
     if (!combo) {
       container.innerHTML += `<div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 cursor-pointer flex items-center justify-center min-h-[80px] text-gray-400">No suggestion</div>`;
       continue;
     }
-    // Compose display
-    const names = combo.map(m => `${m.name} <span class='text-xs text-gray-400'>x${m.qty}</span>`).join(' + ');
-    const units = combo.map(m => `${m.qty} × ${m.unit}`).join(' + ');
-    const totalCal = combo.reduce((sum, m) => sum + m.calories * m.qty, 0);
+    // Compose display (support both single and combo)
+    let names, units, totalCal;
+    if (Array.isArray(combo)) {
+      names = combo.map(m => `${m.name} <span class='text-xs text-gray-400'>x${m.qty || 1}</span>`).join(' + ');
+      units = combo.map(m => `${m.qty || 1} × ${m.unit}`).join(' + ');
+      totalCal = combo.reduce((sum, m) => sum + (m.calories * (m.qty || 1)), 0);
+    } else {
+      names = `${combo.name} <span class='text-xs text-gray-400'>x${combo.qty || 1}</span>`;
+      units = `${combo.qty || 1} × ${combo.unit}`;
+      totalCal = (combo.calories || 0) * (combo.qty || 1);
+    }
     container.innerHTML += `
       <div class="meal-card bg-gray-800 rounded-2xl p-5 border border-gray-700 cursor-pointer">
         <div class="flex items-start justify-between mb-4">
@@ -189,56 +91,66 @@ function slotColor(slot) {
 }
 
 // --- Shuffle handler ---
+
 function shuffleSlot(slot) {
   if (!mealCombos[slot] || mealCombos[slot].length === 0) return;
   currentIndices[slot] = (currentIndices[slot] + 1) % mealCombos[slot].length;
-  renderMealOptions(slot, [mealCombos[slot][currentIndices[slot]], mealCombos[slot][(currentIndices[slot]+1)%mealCombos[slot].length]]);
+  renderMealOptions(slot, mealCombos[slot], currentIndices[slot]);
 }
 
 // --- Main logic ---
+
+
 onAuthStateChanged(auth, async user => {
-  if (!user) return;
-  const userDoc = await getDoc(doc(db, 'Users', user.uid));
-  if (!userDoc.exists()) return;
-  userProfile = userDoc.data();
-  // --- Display BMI/BMR/Calories if elements exist ---
-  const bmi = userProfile.bmi || calculateBMI(userProfile);
-  const bmr = userProfile.bmr || calculateBMR(userProfile);
-  const calories = userProfile.calorieTarget || calculateCalorieTarget(bmr, userProfile.goal);
-  if (document.getElementById('bmi-info')) {
-    document.getElementById('bmi-info').textContent = `BMI: ${bmi ?? '--'} | BMR: ${bmr ?? '--'} kcal/day`;
-  }
-  if (document.getElementById('calorie-info')) {
-    document.getElementById('calorie-info').textContent = `Calorie Goal: ${calories ?? '--'} kcal/day`;
-  }
-  const calorieTarget = userProfile.calorieTarget || 2000;
-  const region = userProfile.region || 'North';
   try {
-    mealsData = await fetchMealsData();
-  } catch (e) {
-    MEAL_KEYS.forEach(slot => {
-      renderMealOptions(slot, []);
-    });
-    return;
-  }
-  // For each slot, compute combos
-  MEAL_KEYS.forEach(slot => {
-    const slotTarget = Math.round(calorieTarget * MEAL_SPLIT[slot]);
-    // Meals.json uses capitalized keys
-    const regionMeals = (mealsData[region] && mealsData[region][MEAL_LABELS[slot]]) || [];
-    mealCombos[slot] = findMealCombos(regionMeals, slotTarget, 0.15, 8); // up to 8 combos for shuffling
-    // Pick first two for initial render
-    renderMealOptions(slot, [mealCombos[slot][0], mealCombos[slot][1]]);
-    currentIndices[slot] = 0;
-  });
-  // Attach shuffle listeners
-  MEAL_KEYS.forEach(slot => {
-    const btn = document.getElementById(`shuffle-${slot}`);
-    if (btn) {
-      btn.onclick = () => shuffleSlot(slot);
+    if (!user) return;
+    // Check mealsEnabled from Firestore (authoritative)
+    const userDocSnap = await getDoc(doc(db, 'Users', user.uid));
+    const mealsEnabled = userDocSnap.exists() && userDocSnap.data().mealsEnabled !== undefined ? userDocSnap.data().mealsEnabled : true;
+    localStorage.setItem(`mealsEnabled_${user.uid}`, String(mealsEnabled));
+    if (!mealsEnabled) {
+      window.location.href = '/dashboard';
+      return;
     }
-  });
-}); 
+
+    // Fetch meal suggestions from backend
+    let apiData;
+    try {
+      apiData = await fetchMealSuggestions(user.uid);
+      console.log('[Meal API] Raw API data:', apiData);
+    } catch (e) {
+      console.error('Failed to fetch meal suggestions:', e);
+      MEAL_KEYS.forEach(slot => renderMealOptions(slot, [], 0));
+      return;
+    }
+    if (!apiData.suggestions) {
+      console.warn('[Meal API] No suggestions field in API response:', apiData);
+      MEAL_KEYS.forEach(slot => renderMealOptions(slot, [], 0));
+      return;
+    }
+    // Store all combos and render first two for each slot
+    MEAL_KEYS.forEach(slot => {
+      const combos = apiData.suggestions[slot] || [];
+      console.log(`[Meal API] Suggestions for ${slot}:`, combos);
+      mealCombos[slot] = combos;
+      currentIndices[slot] = 0;
+      try {
+        renderMealOptions(slot, combos, 0);
+      } catch (renderErr) {
+        console.error(`[Meal API] Error rendering options for ${slot}:`, renderErr, combos);
+      }
+    });
+    // Attach shuffle listeners
+    MEAL_KEYS.forEach(slot => {
+      const btn = document.getElementById(`shuffle-${slot}`);
+      if (btn) {
+        btn.onclick = () => shuffleSlot(slot);
+      }
+    });
+  } catch (err) {
+    console.error('Error in meals suggestion logic:', err);
+  }
+});
+}
 
 // --- Export helpers for future use ---
-export { fetchMealsData, findMealCombos, renderMealOptions, shuffleSlot }; 

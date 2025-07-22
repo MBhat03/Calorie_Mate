@@ -534,7 +534,7 @@
                     <span>📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link{% if request.endpoint == 'meal.serve_meal_page' %} active{% endif %}" data-nav="meals">
                     <span>🍜</span>
                     <span>Meals</span>
                 </a>
@@ -542,7 +542,7 @@
                     <span>🏆</span>
                     <span>Badges</span>
                 </a>
-                <a href="#" class="nav-link">
+                <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
                     <span>⚙️</span>
                     <span>Settings</span>
                 </a>
@@ -572,7 +572,7 @@
                 <span>🏆</span>
                 <span>Badges</span>
             </a>
-            <a href="#" class="nav-link">
+            <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
                 <span>⚙️</span>
                 <span>Settings</span>
             </a>
@@ -758,5 +758,20 @@
         </div>
     </main>
     <script src="{{ url_for('static', filename='javascript.js') }}"></script>
+    <script>
+function updateMealsNavVisibility() {
+    const mealsLinks = document.querySelectorAll('.nav-link[data-nav="meals"]');
+    const enabled = localStorage.getItem('mealsEnabled');
+    mealsLinks.forEach(link => {
+        if (enabled === 'false') {
+            link.style.display = 'none';
+        } else {
+            link.style.display = '';
+        }
+    });
+}
+window.addEventListener('mealsEnabledChanged', updateMealsNavVisibility);
+document.addEventListener('DOMContentLoaded', updateMealsNavVisibility);
+</script>
 </body>
 </html>
