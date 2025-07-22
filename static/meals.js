@@ -98,19 +98,112 @@ function shuffleSlot(slot) {
   renderMealOptions(slot, mealCombos[slot], currentIndices[slot]);
 }
 
+// --- Display user metrics (BMI, BMR, calories) ---
+async function displayUserMetrics(uid, userData) {
+  try {
+    // Fetch latest weight from weight logs
+    let latestWeight = userData.weight;
+    try {
+      const weightsRef = collection(db, `Users/${uid}/weights`);
+      const snapshot = await getDocs(weightsRef);
+      const dateWeightPairs = [];
+      snapshot.forEach(docSnap => {
+        const w = docSnap.data();
+        dateWeightPairs.push({ date: w.date, weight: w.weight });
+      });
+      if (dateWeightPairs.length > 0) {
+        dateWeightPairs.sort((a, b) => new Date(a.date) - new Date(b.date));
+        latestWeight = dateWeightPairs[dateWeightPairs.length - 1].weight;
+      }
+    } catch (e) {
+      console.log('[Meals] Using profile weight as fallback');
+    }
+
+    // Calculate BMI, BMR, calories
+    const height = userData.height;
+    const weight = latestWeight;
+    const age = userData.age;
+    const gender = userData.gender;
+    const activity = (userData.activity || '').toLowerCase();
+    let goal = (userData.goal || '').toLowerCase();
+    if (goal.includes('maintain')) goal = 'maintain';
+    else if (goal.includes('lose')) goal = 'lose';
+    else if (goal.includes('gain')) goal = 'gain';
+
+    let bmi = '--', bmr = '--', calories = '--';
+    if (height && weight && age && gender && activity && goal) {
+      bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
+      if (gender.toLowerCase() === 'male') {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+      } else {
+        bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+      }
+      bmr = Math.round(bmr);
+      
+      const activityMultipliers = {
+        'sedentary': 1.2,
+        'light': 1.375,
+        'moderate': 1.55,
+        'active': 1.725,
+        'very active': 1.9
+      };
+      const tdee = bmr * (activityMultipliers[activity] || 1.2);
+      const goalAdjustments = {
+        'maintain': 0,
+        'lose': -500,
+        'gain': 500
+      };
+      calories = Math.round(tdee + (goalAdjustments[goal] || 0));
+    }
+
+    // Update display elements
+    const bmiInfo = document.getElementById('bmi-info');
+    const calorieInfo = document.getElementById('calorie-info');
+    if (bmiInfo) bmiInfo.textContent = `BMI: ${bmi} | BMR: ${bmr}`;
+    if (calorieInfo) calorieInfo.textContent = `Calorie Goal: ${calories} kcal/day`;
+    
+    console.log(`[Meals] Updated metrics - BMI: ${bmi}, BMR: ${bmr}, Calories: ${calories}`);
+  } catch (error) {
+    console.error('[Meals] Error calculating user metrics:', error);
+  }
+}
+
 // --- Main logic ---
 
 
 onAuthStateChanged(auth, async user => {
   try {
-    if (!user) return;
-    // Check mealsEnabled from Firestore (authoritative)
-    const userDocSnap = await getDoc(doc(db, 'Users', user.uid));
-    const mealsEnabled = userDocSnap.exists() && userDocSnap.data().mealsEnabled !== undefined ? userDocSnap.data().mealsEnabled : true;
-    localStorage.setItem(`mealsEnabled_${user.uid}`, String(mealsEnabled));
-    if (!mealsEnabled) {
-      window.location.href = '/dashboard';
+    if (!user) {
+      // No user authenticated, keep page blank
       return;
+    }
+    
+    // Check mealsEnabled from localStorage (user-specific key)
+    const mealsEnabledKey = `mealsEnabled_${user.uid}`;
+    const mealsEnabled = localStorage.getItem(mealsEnabledKey);
+    
+    // If toggle is OFF or not set, keep page blank (do not redirect)
+    if (mealsEnabled === 'false') {
+      console.log('[Meals] Meal suggestions disabled for user, keeping page blank');
+      return;
+    }
+
+    // Toggle is ON - proceed with BMI/BMR display and meal suggestions
+    console.log('[Meals] Meal suggestions enabled, loading user data and meals');
+    
+    // Fetch user data and display BMI/BMR/calories
+    const userDocSnap = await getDoc(doc(db, 'Users', user.uid));
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      
+      // Update user name display
+      const userNameEl = document.getElementById('user-name');
+      if (userNameEl && userData.name) {
+        userNameEl.textContent = `Welcome, ${userData.name}!`;
+      }
+      
+      // Calculate and display BMI, BMR, calories
+      await displayUserMetrics(user.uid, userData);
     }
 
     // Fetch meal suggestions from backend

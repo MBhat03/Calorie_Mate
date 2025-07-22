@@ -555,29 +555,6 @@
         }
     });
     </script>
-    <script>
-if (localStorage.getItem('mealsEnabled') === 'false') {
-    window.location.href = '/dashboard';
-}
-window.addEventListener('mealsEnabledChanged', function() {
-    if (localStorage.getItem('mealsEnabled') === 'false') {
-        window.location.href = '/dashboard';
-    }
-});
-function updateMealsNavVisibility() {
-    const mealsLinks = document.querySelectorAll('.nav-link[data-nav="meals"]');
-    const enabled = localStorage.getItem('mealsEnabled');
-    mealsLinks.forEach(link => {
-        if (enabled === 'false') {
-            link.style.display = 'none';
-        } else {
-            link.style.display = '';
-        }
-    });
-}
-window.addEventListener('mealsEnabledChanged', updateMealsNavVisibility);
-document.addEventListener('DOMContentLoaded', updateMealsNavVisibility);
-</script>
         
 </body>
 </html>
