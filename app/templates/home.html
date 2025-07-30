@@ -393,17 +393,21 @@
                     <span>📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
-                    <span>🍜</span>
-                    <span>Meals</span>
-                </a>
                 <a href="{{ url_for('main.badges') }}" class="nav-link">
                     <span>🏆</span>
                     <span>Badges</span>
                 </a>
-                <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
+                <a href="{{ url_for('main.meals') }}" class="nav-link">
+                    <span>🍜</span>
+                    <span>Meals</span>
+                </a>
+                <a href="{{ url_for('main.settings') }}" class="nav-link">
                     <span>⚙️</span>
                     <span>Settings</span>
+                </a>
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <span>🚪</span>
+                    <span>Logout</span>
                 </a>
             </div>
             
@@ -423,17 +427,21 @@
                 <span>📊</span>
                 <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
-                <span>🍜</span>
-                <span>Meals</span>
-            </a>
             <a href="{{ url_for('main.badges') }}" class="nav-link">
                 <span>🏆</span>
                 <span>Badges</span>
             </a>
-            <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
+            <a href="{{ url_for('main.meals') }}" class="nav-link">
+                <span>🍜</span>
+                <span>Meals</span>
+            </a>
+            <a href="{{ url_for('main.settings') }}" class="nav-link">
                 <span>⚙️</span>
                 <span>Settings</span>
+            </a>
+            <a href="{{ url_for('main.logout') }}" class="nav-link">
+                <span>🚪</span>
+                <span>Logout</span>
             </a>
         </div>
     </nav>

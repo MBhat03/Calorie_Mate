@@ -1,21 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { app, auth, db } from './js/firebase-config.js';
 
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCofMBIvGlQRaKsPc9k7MkwjhBkdzoHo84",
-  authDomain: "calorie-mate-4503.firebaseapp.com",
-  projectId: "calorie-mate-4503",
-  storageBucket: "calorie-mate-4503.appspot.com",
-  messagingSenderId: "788288090415",
-  appId: "1:788288090415:web:9db8031566a7f40aaab1da"
-};
-
-// Init
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Firebase services imported from config file
 
 // Modal data (hardcoded)
 const badgeMeta = {
@@ -239,4 +226,10 @@ onAuthStateChanged(auth, async (user) => {
   if (progressFillElement) {
     progressFillElement.style.width = `${(unlocked / total) * 100}%`;
   }
+});
+
+// DOMContentLoaded event for any additional initialization if needed
+document.addEventListener('DOMContentLoaded', () => {
+  // Modal event listeners are already set up above
+  console.log('✅ Badges page initialized');
 });

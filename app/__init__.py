@@ -14,11 +14,11 @@ def create_app():
 
     app.config['FIRESTORE_DB'] = db
 
-    from app.routes import main_bp, user_bp, weight_bp, meal_bp
+    from app.routes import main_bp, user_bp, weight_bp, meals_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(user_bp, url_prefix='/api')
     app.register_blueprint(weight_bp, url_prefix='/api')
-    app.register_blueprint(meal_bp)
+    app.register_blueprint(meals_bp)
 
     return app   

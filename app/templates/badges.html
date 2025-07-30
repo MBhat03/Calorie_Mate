@@ -426,7 +426,7 @@
                     <span>📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                <a href="{{ url_for('main.meals') }}" class="nav-link">
                     <span>🍜</span>
                     <span>Meals</span>
                 </a>
@@ -434,9 +434,13 @@
                     <span>🏆</span>
                     <span>Badges</span>
                 </a>
-                <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
+                <a href="{{ url_for('main.settings') }}" class="nav-link">
                     <span>⚙️</span>
                     <span>Settings</span>
+                </a>
+                <a href="{{ url_for('main.logout') }}" class="nav-link">
+                    <span>🚪</span>
+                    <span>Logout</span>
                 </a>
             </div>
             <div class="nav-hamburger" onclick="toggleMobileNav()">
@@ -454,7 +458,7 @@
                 <span>📊</span>
                 <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+            <a href="{{ url_for('main.meals') }}" class="nav-link">
                 <span>🍜</span>
                 <span>Meals</span>
             </a>
@@ -462,9 +466,13 @@
                 <span>🏆</span>
                 <span>Badges</span>
             </a>
-            <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
+            <a href="{{ url_for('main.settings') }}" class="nav-link">
                 <span>⚙️</span>
                 <span>Settings</span>
+            </a>
+            <a href="{{ url_for('main.logout') }}" class="nav-link">
+                <span>🚪</span>
+                <span>Logout</span>
             </a>
         </div>
     </nav>
@@ -609,7 +617,7 @@
             </div>
             <div class="badge-card" data-badge-id="muscle-power-up" onclick="openBadgeModal(this)">
                 <div class="badge-unlock-status locked">🔒</div>
-                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752293318/Muscle_Power_Up_p88spo.jpg" alt="Muscle Power Up" class="badge-image mx-auto mb-4">
+                <img src="https://res.cloudinary.com/dfgktmduu/image/upload/v1752519128/Muscle_Power_Up_p88spo.jpg" alt="Muscle Power Up" class="badge-image mx-auto mb-4">
                 <h3 class="badge-title">Muscle Power Up</h3>
                 <p class="badge-description">Gained 2kg - Building strength!</p>
             </div>
@@ -673,7 +681,7 @@
     }
     });
     </script>
-    <script type="module" src="{{ url_for('static', filename='badges.js') }}"></script>
+    <script type="module" src="/static/badges.js"></script>
     
     <footer class="w-full bg-transparent mt-12">
       <div class="glass-card max-w-4xl mx-auto mb-4 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-gray-200 text-sm shadow-lg rounded-2xl">
