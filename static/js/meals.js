@@ -748,15 +748,12 @@ function showErrorMessage(message) {
         errorDiv.style.transform = 'translate(-50%, 0) scale(1)';
     }, 10);
     
+    // FIXED: Increased timeout to 30 seconds and removed problematic opacity fade
     setTimeout(() => {
-        errorDiv.style.opacity = '0';
-        errorDiv.style.transform = 'translate(-50%, -20px) scale(0.9)';
-        setTimeout(() => {
-            if (document.body.contains(errorDiv)) {
-                document.body.removeChild(errorDiv);
-            }
-        }, 300);
-    }, 4000);
+        if (document.body.contains(errorDiv)) {
+            document.body.removeChild(errorDiv);
+        }
+    }, 30000); // Changed from 4000 to 30000 (30 seconds)
 }
 
 function showSuccessMessage(message) {
@@ -782,15 +779,12 @@ function showSuccessMessage(message) {
         successDiv.style.transform = 'translate(-50%, 0) scale(1)';
     }, 10);
     
+    // FIXED: Increased timeout to 30 seconds and removed problematic opacity fade
     setTimeout(() => {
-        successDiv.style.opacity = '0';
-        successDiv.style.transform = 'translate(-50%, -20px) scale(0.9)';
-        setTimeout(() => {
-            if (document.body.contains(successDiv)) {
-                document.body.removeChild(successDiv);
-            }
-        }, 300);
-    }, 3000);
+        if (document.body.contains(successDiv)) {
+            document.body.removeChild(successDiv);
+        }
+    }, 30000); // Changed from 3000 to 30000 (30 seconds)
 }
 
 // Keep all existing helper functions
@@ -812,11 +806,12 @@ function showMealTimeError(mealTime, message) {
         </button>
     `;
     
+    // FIXED: Increased timeout to 60 seconds for meal time errors
     setTimeout(() => {
         if (errorEl && errorEl.parentNode) {
             errorEl.remove();
         }
-    }, 10000);
+    }, 60000); // Changed from 10000 to 60000 (60 seconds)
 }
 
 async function retryMealTime(mealTime) {
