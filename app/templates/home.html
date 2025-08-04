@@ -381,32 +381,23 @@
     <nav class="nav-container">
         <div class="flex justify-between items-center">
             <div class="nav-logo">
-                🌟 Calorie Mate
+                Calorie Mate
             </div>
             
             <div class="nav-links">
-                <a href="{{ url_for('main.home') }}" class="nav-link active">
-                    <span>🏠</span>
+                <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
                     <span>Home</span>
                 </a>
-                <a href="{{ url_for('main.dashboard') }}" class="nav-link">
-                    <span>📊</span>
+                <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ url_for('main.badges') }}" class="nav-link">
-                    <span>🏆</span>
+                <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
                     <span>Badges</span>
                 </a>
-                <a href="{{ url_for('main.meals') }}" class="nav-link">
-                    <span>🍜</span>
+                <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
                     <span>Meals</span>
                 </a>
-                <a href="{{ url_for('main.settings') }}" class="nav-link">
-                    <span>⚙️</span>
-                    <span>Settings</span>
-                </a>
                 <a href="{{ url_for('main.logout') }}" class="nav-link">
-                    <span>🚪</span>
                     <span>Logout</span>
                 </a>
             </div>
@@ -419,28 +410,19 @@
         </div>
         
         <div class="nav-mobile" id="mobileNav">
-            <a href="{{ url_for('main.home') }}" class="nav-link active">
-                <span>🏠</span>
+            <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
                 <span>Home</span>
             </a>
-            <a href="{{ url_for('main.dashboard') }}" class="nav-link">
-                <span>📊</span>
+            <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
                 <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('main.badges') }}" class="nav-link">
-                <span>🏆</span>
+            <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
                 <span>Badges</span>
             </a>
-            <a href="{{ url_for('main.meals') }}" class="nav-link">
-                <span>🍜</span>
+            <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
                 <span>Meals</span>
             </a>
-            <a href="{{ url_for('main.settings') }}" class="nav-link">
-                <span>⚙️</span>
-                <span>Settings</span>
-            </a>
             <a href="{{ url_for('main.logout') }}" class="nav-link">
-                <span>🚪</span>
                 <span>Logout</span>
             </a>
         </div>

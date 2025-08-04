@@ -26,7 +26,7 @@ def register():
 @main_bp.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for("main.home"))
+    return render_template("logout.html")
 
 @main_bp.route("/meals")
 def meals():
@@ -42,6 +42,4 @@ def serve_meals_json():
     app_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
     return send_from_directory(app_dir, 'meals.json')
 
-@main_bp.route("/settings")
-def settings():
-    return render_template("settings.html")
+

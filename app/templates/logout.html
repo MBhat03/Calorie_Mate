@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logout - Calorie Mate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <script type="module">
+    import { auth } from "{{ url_for('static', filename='js/firebase-config.js') }}";
+    import { signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    // When page loads → logout user
+    window.addEventListener("DOMContentLoaded", () => {
+      console.log("🔐 Logging out...");
+      signOut(auth)
+        .then(() => {
+          console.log("✅ User logged out");
+          window.location.href = "{{ url_for('main.login') }}"; // redirect to login
+        })
+        .catch((error) => {
+          console.error("❌ Logout error:", error);
+          alert("Failed to logout. Try again.");
+          window.location.href = "{{ url_for('main.login') }}";
+        });
+    });
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #1e3a8a 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    /* Enhanced Navigation Styles */
+    .nav-container {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+      -webkit-backdrop-filter: blur(25px);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 15px 30px;
+      margin: 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.8rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ff6b9d, #8b5cf6, #3b82f6);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 8s ease infinite;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    
+    .nav-link {
+      position: relative;
+      color: rgba(255, 255, 255, 0.9);
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 15px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .nav-link:hover {
+      color: #ffffff;
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .nav-link.active {
+      background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+      color: white;
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .nav-hamburger span {
+      width: 25px;
+      height: 3px;
+      background: white;
+      margin: 3px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+    
+    .nav-mobile {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+      -webkit-backdrop-filter: blur(25px);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      margin-top: 10px;
+      padding: 20px;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-mobile.active {
+      display: flex;
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+      
+      .nav-hamburger {
+        display: flex;
+      }
+    }
+    
+    .logout-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 120px);
+      padding-top: 120px;
+    }
+    
+    .message {
+      font-size: 1.2rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f8fafc;
+      text-align: center;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white">
+  <!-- Enhanced Navigation Bar -->
+  <nav class="nav-container">
+    <div class="flex justify-between items-center">
+      <div class="nav-logo">
+        Calorie Mate
+      </div>
+      
+      <div class="nav-links">
+        <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
+          <span>Home</span>
+        </a>
+        <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
+          <span>Dashboard</span>
+        </a>
+        <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
+          <span>Badges</span>
+        </a>
+        <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
+          <span>Meals</span>
+        </a>
+        <a href="{{ url_for('main.logout') }}" class="nav-link{% if request.endpoint == 'main.logout' %} active{% endif %}">
+          <span>Logout</span>
+        </a>
+      </div>
+      
+      <div class="nav-hamburger" onclick="toggleMobileNav()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    
+    <div class="nav-mobile" id="mobileNav">
+      <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
+        <span>Home</span>
+      </a>
+      <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
+        <span>Dashboard</span>
+      </a>
+      <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
+        <span>Badges</span>
+      </a>
+      <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
+        <span>Meals</span>
+      </a>
+      <a href="{{ url_for('main.logout') }}" class="nav-link{% if request.endpoint == 'main.logout' %} active{% endif %}">
+        <span>Logout</span>
+      </a>
+    </div>
+  </nav>
+  
+  <div class="logout-content">
+    <div class="message">🔒 Logging you out...</div>
+  </div>
+  
+  <script>
+    function toggleMobileNav() {
+      const mobileNav = document.getElementById('mobileNav');
+      mobileNav.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>

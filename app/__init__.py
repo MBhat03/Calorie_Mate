@@ -12,6 +12,9 @@ def create_app():
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     CORS(app)
 
+    # ✅ Add secret key for session handling
+    app.secret_key = os.environ.get("SECRET_KEY", "super-secret-key")
+
     app.config['FIRESTORE_DB'] = db
 
     from app.routes import main_bp, user_bp, weight_bp, meals_bp
@@ -21,4 +24,4 @@ def create_app():
     app.register_blueprint(weight_bp, url_prefix='/api')
     app.register_blueprint(meals_bp)
 
-    return app   
+    return app
