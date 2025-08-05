@@ -377,56 +377,8 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body class="bg-gray-900 text-white overflow-x-hidden">
-    <!-- Enhanced Navigation Bar -->
-    <nav class="nav-container">
-        <div class="flex justify-between items-center">
-            <div class="nav-logo">
-                Calorie Mate
-            </div>
-            
-            <div class="nav-links">
-                <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
-                    <span>Home</span>
-                </a>
-                <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
-                    <span>Badges</span>
-                </a>
-                <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
-                    <span>Meals</span>
-                </a>
-                <a href="{{ url_for('main.logout') }}" class="nav-link">
-                    <span>Logout</span>
-                </a>
-            </div>
-            
-            <div class="nav-hamburger" onclick="toggleMobileNav()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-        
-        <div class="nav-mobile" id="mobileNav">
-            <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
-                <span>Home</span>
-            </a>
-            <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
-                <span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
-                <span>Badges</span>
-            </a>
-            <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
-                <span>Meals</span>
-            </a>
-            <a href="{{ url_for('main.logout') }}" class="nav-link">
-                <span>Logout</span>
-            </a>
-        </div>
-    </nav>
+    <!-- Navigation Bar -->
+    {% include 'navigation.html' %}
     
     <div class="floating-particles" id="particles"></div>
 
@@ -561,7 +513,7 @@
                                 <span class="px-3 py-1 bg-anime-blue/20 text-anime-blue rounded-full text-sm">Motivation</span>
                             </div>
                             <div class="mt-auto">
-                                <a href="{{ url_for('main.badges') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-anime-blue to-anime-yellow rounded-lg hover:from-anime-yellow hover:to-anime-blue transition-all duration-300 transform hover:scale-105">
+                                <a href="{{ url_for('main.meals') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-anime-blue to-anime-yellow rounded-lg hover:from-anime-yellow hover:to-anime-blue transition-all duration-300 transform hover:scale-105">
                                     <span class="mr-2">🏆</span>
                                     View Badges
                                 </a>

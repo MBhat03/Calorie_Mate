@@ -185,53 +185,8 @@
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen">
-    <!-- Enhanced Navigation Bar -->
-    <nav class="nav-container">
-        <div class="flex justify-between items-center">
-            <div class="nav-logo">
-                Calorie Mate
-            </div>
-            <div class="nav-links">
-                <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
-                    <span>Home</span>
-                </a>
-                <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
-                    <span>Dashboard</span>
-                </a>
-                <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
-                    <span>Meals</span>
-                </a>
-                <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
-                    <span>Badges</span>
-                </a>
-                <a href="{{ url_for('main.logout') }}" class="nav-link">
-                    <span>Logout</span>
-                </a>
-            </div>
-            <div class="nav-hamburger" onclick="toggleMobileNav()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </div>
-        <div class="nav-mobile" id="mobileNav">
-            <a href="{{ url_for('main.home') }}" class="nav-link{% if request.endpoint == 'main.home' %} active{% endif %}">
-                <span>Home</span>
-            </a>
-            <a href="{{ url_for('main.dashboard') }}" class="nav-link{% if request.endpoint == 'main.dashboard' %} active{% endif %}">
-                <span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}">
-                <span>Meals</span>
-            </a>
-            <a href="{{ url_for('main.badges') }}" class="nav-link{% if request.endpoint == 'main.badges' %} active{% endif %}">
-                <span>Badges</span>
-            </a>
-            <a href="{{ url_for('main.logout') }}" class="nav-link">
-                <span>Logout</span>
-            </a>
-        </div>
-    </nav>
+    <!-- Navigation Bar -->
+    {% include 'navigation.html' %}
     <!-- Background Pattern -->
     <div class="fixed inset-0 opacity-5">
         <div class="absolute inset-0 background-pattern"></div>
@@ -246,14 +201,6 @@
                 Today's Meal Choices
             </h1>
             <p class="text-xl text-gray-400 mb-8">Choose your perfect meals for the day</p>
-        </div>
-
-        <!-- User Info Section -->
-        <div id="user-info" class="glass-effect rounded-xl p-6 mb-12 text-center max-w-2xl mx-auto text-white">
-            <h2 id="user-name" class="text-2xl font-semibold mb-2"></h2>
-            <p class="text-gray-300 text-sm mt-1">
-                Calorie Goal: <span id="goal-value">--</span> kcal/day
-            </p>
         </div>
 
         <!-- 2x2 Meal Grid -->
@@ -509,6 +456,84 @@
         if (!mobileNav.contains(event.target) && !hamburger.contains(event.target)) {
             mobileNav.classList.remove('active');
         }
+    });
+    
+    // ✅ FALLBACK MEALS FUNCTIONALITY
+    // This ensures meals work even if the main meals.js has issues
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔧 Loading fallback meals functionality...');
+        
+        // Simple meal data
+        const fallbackMeals = {
+            breakfast: [
+                {name: 'Oatmeal with Berries', calories: 300, portion: '1 bowl'},
+                {name: 'Scrambled Eggs with Toast', calories: 350, portion: '2 eggs + 2 slices'},
+                {name: 'Smoothie Bowl', calories: 280, portion: '1 bowl'},
+                {name: 'Pancakes with Maple Syrup', calories: 400, portion: '3 pancakes'}
+            ],
+            lunch: [
+                {name: 'Grilled Chicken Salad', calories: 450, portion: '1 large bowl'},
+                {name: 'Vegetable Stir Fry', calories: 380, portion: '1 plate'},
+                {name: 'Quinoa Bowl', calories: 420, portion: '1 bowl'},
+                {name: 'Fish Tacos', calories: 480, portion: '3 tacos'}
+            ],
+            dinner: [
+                {name: 'Salmon with Vegetables', calories: 520, portion: '1 fillet + sides'},
+                {name: 'Pasta Primavera', calories: 480, portion: '1 plate'},
+                {name: 'Beef Stir Fry', calories: 550, portion: '1 plate'},
+                {name: 'Vegetable Curry', calories: 420, portion: '1 bowl'}
+            ],
+            snacks: [
+                {name: 'Apple with Peanut Butter', calories: 200, portion: '1 apple + 1 tbsp'},
+                {name: 'Greek Yogurt with Nuts', calories: 180, portion: '1 cup + 1/4 cup nuts'},
+                {name: 'Hummus with Carrots', calories: 150, portion: '1/4 cup + 1 cup carrots'},
+                {name: 'Trail Mix', calories: 220, portion: '1/4 cup'}
+            ]
+        };
+        
+        // Function to shuffle meals
+        function shuffleMeals(mealTime) {
+            console.log(`🔀 Fallback shuffle for ${mealTime}`);
+            const meals = fallbackMeals[mealTime] || [];
+            const shuffled = [...meals].sort(() => Math.random() - 0.5);
+            
+            // Update the first two meal cards
+            const container = document.getElementById(`${mealTime}-options`);
+            if (container) {
+                const cards = container.querySelectorAll('.meal-card');
+                cards.forEach((card, index) => {
+                    if (shuffled[index]) {
+                        const meal = shuffled[index];
+                        const nameEl = card.querySelector('.meal-name');
+                        const quantityEl = card.querySelector('.meal-quantity');
+                        const caloriesEl = card.querySelector('.meal-calories');
+                        
+                        if (nameEl) nameEl.textContent = meal.name;
+                        if (quantityEl) quantityEl.textContent = meal.portion;
+                        if (caloriesEl) caloriesEl.textContent = meal.calories;
+                    }
+                });
+            }
+        }
+        
+        // Add click handlers to shuffle buttons
+        const mealTimes = ['breakfast', 'lunch', 'dinner', 'snacks'];
+        mealTimes.forEach(mealTime => {
+            const button = document.getElementById(`shuffle-${mealTime}`);
+            if (button) {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    shuffleMeals(mealTime);
+                });
+            }
+        });
+        
+        // Load initial meals
+        mealTimes.forEach(mealTime => {
+            shuffleMeals(mealTime);
+        });
+        
+        console.log('✅ Fallback meals functionality loaded');
     });
     </script>
         

@@ -72,13 +72,8 @@ window.testEmailVerification = async function(email, password) {
     const user = userCredential.user;
     console.log("✅ User created:", user.email);
     
-          // Send verification email with redirect settings
-      const actionCodeSettings = {
-        url: "http://localhost:5000/login.html?verified=true",  // your Flask login page
-        handleCodeInApp: false
-      };
-      
-      sendEmailVerification(user, actionCodeSettings)
+          // Send verification email - let Firebase handle the redirect
+      sendEmailVerification(user)
         .then(() => {
           console.log("📧 Verification email sent to:", user.email);
           alert("Verification email sent! Please check your inbox.");
@@ -185,7 +180,7 @@ if (window.location.pathname.endsWith('/login') || window.location.pathname.ends
     errorDiv.classList.add('hidden');
     errorDiv.textContent = '';
   }
-  
+
   // ✅ ADDED: Show verification notice if coming from registration
   window.addEventListener("DOMContentLoaded", () => {
     // Check for verification success from email link
@@ -287,13 +282,8 @@ if (window.location.pathname.endsWith('/login') || window.location.pathname.ends
       const user = userCred.user;
       console.log("✅ User created:", user.email);
       
-      // Send verification email with redirect settings
-      const actionCodeSettings = {
-        url: "http://localhost:5000/login.html?verified=true",  // your Flask login page
-        handleCodeInApp: false
-      };
-      
-      sendEmailVerification(user, actionCodeSettings)
+      // Send verification email - let Firebase handle the redirect
+      sendEmailVerification(user)
         .then(() => {
           console.log("📧 Verification email sent to:", user.email);
           alert("Verification email sent! Please check your inbox.");
@@ -410,13 +400,8 @@ if (window.location.pathname.endsWith('/login') || window.location.pathname.ends
         return;
       }
       
-      // Send verification email with redirect settings
-      const actionCodeSettings = {
-        url: "http://localhost:5000/login.html?verified=true",  // your Flask login page
-        handleCodeInApp: false
-      };
-      
-      sendEmailVerification(user, actionCodeSettings)
+      // Send verification email - let Firebase handle the redirect
+      sendEmailVerification(user)
         .then(() => {
           console.log("📧 Verification email sent to:", user.email);
           alert("Verification email sent! Please check your inbox.");
@@ -797,4 +782,4 @@ window.toggleMobileNav = function() {
   });
 
   updateMetricsDisplay();
-})(); 
+})();

@@ -534,18 +534,11 @@
                     <span>📊</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link{% if request.endpoint == 'meal.serve_meal_page' %} active{% endif %}" data-nav="meals">
+                <a href="{{ url_for('main.meals') }}" class="nav-link{% if request.endpoint == 'main.meals' %} active{% endif %}" data-nav="meals">
                     <span>🍜</span>
                     <span>Meals</span>
                 </a>
-                <a href="{{ url_for('main.badges') }}" class="nav-link">
-                    <span>🏆</span>
-                    <span>Badges</span>
-                </a>
-                <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
-                    <span>⚙️</span>
-                    <span>Settings</span>
-                </a>
+
             </div>
             
             <div class="nav-hamburger" onclick="toggleMobileNav()">
@@ -564,18 +557,11 @@
                 <span>📊</span>
                 <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('meal.serve_meal_page') }}" class="nav-link">
+                            <a href="{{ url_for('main.meals') }}" class="nav-link">
                 <span>🍜</span>
                 <span>Meals</span>
             </a>
-            <a href="{{ url_for('main.badges') }}" class="nav-link">
-                <span>🏆</span>
-                <span>Badges</span>
-            </a>
-            <a href="{{ url_for('main.settings') }}" class="nav-link{% if request.endpoint == 'main.settings' %} active{% endif %}">
-                <span>⚙️</span>
-                <span>Settings</span>
-            </a>
+
         </div>
     </nav>
 

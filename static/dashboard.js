@@ -80,6 +80,9 @@ async function refreshDashboard() {
           if (height && weight) {
               const bmi = (weight / Math.pow(height / 100, 2)).toFixed(1);
               bmiValueEl.textContent = bmi;
+              
+              // ✅ ADDED: Calculate and display BMI status
+              updateBMIStatus(bmi);
 
               if (age && gender) {
                   let bmr;
@@ -356,4 +359,38 @@ document.addEventListener('DOMContentLoaded', () => {
   if (screen) screen.classList.add('hidden');
   if (showBtn) showBtn.classList.remove('hidden');
 });
+
+// ✅ ADDED: Function to calculate and display BMI status
+function updateBMIStatus(bmi) {
+    const bmiStatusEl = document.getElementById('bmiStatus');
+    if (!bmiStatusEl) return;
+    
+    const bmiNum = parseFloat(bmi);
+    let status = '';
+    let bgColor = '';
+    let textColor = '';
+    
+    if (bmiNum < 18.5) {
+        status = 'Underweight';
+        bgColor = 'bg-blue-500/20';
+        textColor = 'text-blue-300';
+    } else if (bmiNum < 25) {
+        status = 'Normal';
+        bgColor = 'bg-green-500/20';
+        textColor = 'text-green-300';
+    } else if (bmiNum < 30) {
+        status = 'Overweight';
+        bgColor = 'bg-yellow-500/20';
+        textColor = 'text-yellow-300';
+    } else {
+        status = 'Obese';
+        bgColor = 'bg-red-500/20';
+        textColor = 'text-red-300';
+    }
+    
+    bmiStatusEl.textContent = status;
+    bmiStatusEl.className = `text-sm font-semibold px-2 py-1 rounded ${bgColor} ${textColor}`;
+    
+    console.log(`BMI Status: ${bmi} - ${status}`);
+}
   
