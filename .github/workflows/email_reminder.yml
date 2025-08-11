@@ -2,28 +2,23 @@ name: Daily Email Reminder
 
 on:
   schedule:
-    # 16:00 UTC = 9:30 PM IST
+    # Runs every day at 16:00 UTC (9:30 PM IST)
     - cron: '0 16 * * *'
-  workflow_dispatch: # allows manual trigger from Actions tab
+  workflow_dispatch:
 
 jobs:
-  send-email:
+  send_email:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Email
+      - name: Send Email Reminder
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: ${{ secrets.SMTP_SERVER }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Daily CalorieMate Reminder"
-          to: "madhumitabhat4503@gmail.com"
-          from: "CalorieMate <${{ secrets.SMTP_USERNAME }}>"
-          body: |
-            Hello!
-            
-            This is your daily CalorieMate reminder to log your meals and check your health goals.
-
-            Stay healthy,
-            CalorieMate Bot
+          to: madhumitabhat4503@gmail.com.com
+          from: CalorieMate Bot <youruseremail@example.com>
+          body: "Hello! This is your daily CalorieMate reminder to check your health stats and update your meals."
+          secure: true
