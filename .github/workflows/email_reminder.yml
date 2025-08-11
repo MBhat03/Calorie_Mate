@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Daily CalorieMate Reminder"
-          to: madhumitabhat4503@gmail.com.com
+          to: madhumitabhat4503@gmail.com
           from: CalorieMate Bot <youruseremail@example.com>
           body: "Hello! This is your daily CalorieMate reminder to check your health stats and update your meals."
           secure: true
