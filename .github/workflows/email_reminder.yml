@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: "Daily CalorieMate Reminder"
-          to: "recipient@example.com"
+          to: "madhumitabhat4503@gmail.com"
           from: "CalorieMate <${{ secrets.SMTP_USERNAME }}>"
           body: |
             Hello!
